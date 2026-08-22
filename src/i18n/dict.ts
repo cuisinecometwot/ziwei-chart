@@ -179,12 +179,14 @@ const MONTHS: TermDict = {
   Chạp: { en: '12th', jp: '十二月' },
 };
 
+// Values here are wrapped in parentheses by the caller (star name "(status)"),
+// so they must not include their own parens.
 const STATUS: Record<string, { vn: string; en: string; jp: string }> = {
-  M: { vn: '(M)', en: 'Excellent (Miào)', jp: '廟' },
-  V: { vn: '(V)', en: 'Prosperous (Wàng)', jp: '旺' },
-  Đ: { vn: '(Đ)', en: 'Adequate (Dé)', jp: '得' },
-  H: { vn: '(H)', en: 'Fallen (Xiàn)', jp: '陷' },
-  B: { vn: '(B)', en: 'Neutral (Píng)', jp: '平' },
+  M: { vn: 'M', en: 'Excellent (Miào)', jp: '廟' },
+  V: { vn: 'V', en: 'Prosperous (Wàng)', jp: '旺' },
+  Đ: { vn: 'Đ', en: 'Adequate (Dé)', jp: '得' },
+  H: { vn: 'H', en: 'Fallen (Xiàn)', jp: '陷' },
+  B: { vn: 'B', en: 'Neutral (Píng)', jp: '平' },
   N: { vn: '—', en: '—', jp: '—' },
 };
 

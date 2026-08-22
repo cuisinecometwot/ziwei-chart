@@ -5,14 +5,20 @@ import type { HoaType, Palace, Star } from '../types';
 
 const HOA_CLASS: Record<HoaType, string> = { loc: 'hoa-loc', quyen: 'hoa-quyen', khoa: 'hoa-khoa', ky: 'hoa-ky' };
 
+// Brightness is rendered as plain text in parentheses right after the star
+// name, in the same span, instead of a separate badge — a badge sitting next
+// to the name as its own flex box could shrink/overlap and hide part of the
+// name on narrow layouts.
 function StarTag({ star }: { star: Star }) {
   const { i18n } = useTranslation();
   const lang = i18n.language;
   const name = translateTerm(star.name, lang);
   const hóa = star.hóa;
+  const brightness = star.status ? statusText(star.status, lang) : null;
   return (
     <span className="star-name">
       {name}
+      {brightness && <span className="brightness"> ({brightness})</span>}
       {hóa && <span className={`hoa ${HOA_CLASS[hóa]}`}>{HOA_SHORT[lang][hóa]}</span>}
     </span>
   );
@@ -61,11 +67,7 @@ export default function PalaceCell({ palace, t }: PalaceCellProps) {
           <div className="stars stars-main">
             {palace.chinhTinh.map((s, i) => (
               <div key={i} className="star-row">
-                <span className="star-name">
-                  {translateTerm(s.name, lang)}
-                  {s.hóa && <span className={`hoa ${HOA_CLASS[s.hóa]}`}>{HOA_SHORT[lang][s.hóa]}</span>}
-                </span>
-                <Brightness star={s} />
+                <StarTag star={s} />
               </div>
             ))}
           </div>
@@ -76,7 +78,6 @@ export default function PalaceCell({ palace, t }: PalaceCellProps) {
             {goodStars.map((s, i) => (
               <div key={i} className="small-row">
                 <StarTag star={s} />
-                <Brightness star={s} />
               </div>
             ))}
           </div>
@@ -84,7 +85,6 @@ export default function PalaceCell({ palace, t }: PalaceCellProps) {
             {badStars.map((s, i) => (
               <div key={i} className="small-row">
                 <StarTag star={s} />
-                <Brightness star={s} />
               </div>
             ))}
           </div>
@@ -96,12 +96,4 @@ export default function PalaceCell({ palace, t }: PalaceCellProps) {
       </div>
     </div>
   );
-}
-
-// Star brightness (miếu/vượng/đắc/hãm/bình). Some stars have no status.
-function Brightness({ star }: { star: Star }) {
-  const { i18n } = useTranslation();
-  const lang = i18n.language;
-  if (!star.status) return null;
-  return <span className="brightness">{statusText(star.status, lang)}</span>;
 }

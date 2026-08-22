@@ -470,10 +470,6 @@ body {
 }
 
 .star-row {
-  display: flex;
-  align-items: baseline;
-  gap: 6px;
-  flex-wrap: wrap;
   line-height: 1.25;
 }
 
@@ -481,11 +477,6 @@ body {
   font-size: clamp(11px, 1.1vw + 6px, 14px);
   line-height: 1.3;
   color: var(--ink);
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  flex-wrap: wrap;
-  min-width: 0;
 }
 
 .stars-main .star-name {
@@ -494,17 +485,13 @@ body {
   color: var(--main-star);
 }
 
-/* Brightness (miếu/vượng/đắc/hãm/bình) shown after each star */
+/* Brightness (miếu/vượng/đắc/hãm/bình): plain text in parentheses right
+   after the star name, in the same span — not a separate badge, so it can
+   never overlap or hide part of the name. */
 .brightness {
-  font-size: clamp(9px, 0.8vw + 5px, 11px);
+  font-size: 0.85em;
+  font-weight: 400;
   color: #6d4c41;
-  background: #efe4cd;
-  border-radius: 3px;
-  padding: 0 4px;
-  line-height: 1.5;
-  white-space: nowrap;
-  vertical-align: middle;
-  flex-shrink: 0;
 }
 
 /* Small stars: good stars left column, bad stars right column, one per line */
@@ -524,19 +511,11 @@ body {
   min-width: 0;
 }
 
-.small-row {
-  display: flex;
-  align-items: baseline;
-  gap: 4px;
-  min-width: 0;
-  overflow: hidden;
-}
-
 .small-col .star-name {
+  display: block;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  flex: 0 1 auto;
 }
 
 .small-good .star-name {
@@ -751,28 +730,14 @@ body {
   }
 
   /* Columns are too narrow on phones for single-line ellipsis to be readable;
-     let the star name wrap onto a second line instead of hiding its tail. */
-  .small-row {
-    flex-wrap: wrap;
-    align-items: flex-start;
-  }
-
+     let the star name (brightness included, since it's now part of the same
+     text) wrap onto more lines instead of hiding its tail. overflow-wrap and
+     white-space are inherited, so this covers the nested .brightness span too. */
   .small-col .star-name {
     white-space: normal;
     overflow: visible;
     text-overflow: clip;
     overflow-wrap: anywhere;
-  }
-
-  /* The EN/JP status labels (e.g. "Adequate") can be wider than the whole
-     column; let them wrap and shrink too instead of being clipped by
-     .cell-body (the flex-shrink: 0 that protects it from the star name on
-     wider layouts isn't needed here since the name itself now wraps). */
-  .small-row .brightness {
-    white-space: normal;
-    overflow-wrap: anywhere;
-    flex-shrink: 1;
-    min-width: 0;
   }
 
   .center-title {
