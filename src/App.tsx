@@ -138,7 +138,9 @@ function App() {
         </section>
       </main>
 
-      <footer className="app-footer">{t('footer')}</footer>
+      <footer className="app-footer">
+        {t('footer')} · <a href="./about/">{t('aboutLink')}</a>
+      </footer>
     </div>
   );
 }

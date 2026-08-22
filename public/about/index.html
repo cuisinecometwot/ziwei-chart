@@ -1,0 +1,589 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="Tử Vi Đẩu Số nhìn từ góc độ logic, khoa học — không huyền bí. Giới thiệu bộ môn và người xây dựng Lá Số Tử Vi."
+    />
+    <link
+      rel="icon"
+      href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>☯</text></svg>"
+    />
+    <title>Giới thiệu — Lá Số Tử Vi</title>
+    <style>
+      :root {
+        --paper: #fbf6ec;
+        --ink: #3e2723;
+        --line: #6d4c41;
+        --gold: #b08d57;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        background: radial-gradient(ellipse at top, #fdf8ec 0%, #f5ecd8 100%);
+        color: var(--ink);
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue',
+          Arial, 'Noto Sans', sans-serif;
+        -webkit-font-smoothing: antialiased;
+        line-height: 1.65;
+      }
+      .page {
+        max-width: 760px;
+        margin: 0 auto;
+        padding: 20px 20px 48px;
+      }
+      header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        flex-wrap: wrap;
+        padding: 8px 0 20px;
+        border-bottom: 2px solid #e6dcc4;
+        margin-bottom: 28px;
+      }
+      .back-link {
+        font-size: 14px;
+        color: var(--line);
+        text-decoration: none;
+        font-weight: 600;
+      }
+      .back-link:hover {
+        text-decoration: underline;
+      }
+      .lang-switch {
+        display: flex;
+        gap: 6px;
+      }
+      .lang-switch button {
+        padding: 5px 12px;
+        border-radius: 6px;
+        border: 1px solid #d9c9a8;
+        background: #fff;
+        color: var(--ink);
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+      }
+      .lang-switch button.active {
+        background: var(--line);
+        border-color: var(--line);
+        color: #fff;
+      }
+      h1 {
+        font-family: Georgia, 'Times New Roman', 'Noto Serif', serif;
+        font-size: 30px;
+        letter-spacing: 0.5px;
+        margin: 0 0 6px;
+      }
+      .tagline {
+        color: var(--line);
+        font-style: italic;
+        margin: 0 0 24px;
+      }
+      h2 {
+        font-family: Georgia, 'Times New Roman', 'Noto Serif', serif;
+        font-size: 20px;
+        color: var(--line);
+        border-bottom: 1px solid #e6dcc4;
+        padding-bottom: 6px;
+        margin: 32px 0 12px;
+      }
+      p {
+        margin: 0 0 14px;
+        font-size: 15px;
+      }
+      .triad {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 12px;
+        margin: 16px 0 20px;
+      }
+      .triad-card {
+        background: #fffdf8;
+        border: 1px solid #e6dcc4;
+        border-radius: 10px;
+        padding: 14px;
+      }
+      .triad-card h3 {
+        margin: 0 0 6px;
+        font-size: 15px;
+        color: var(--gold);
+      }
+      .triad-card p {
+        font-size: 13.5px;
+        margin: 0;
+        color: var(--line);
+      }
+      @media (max-width: 640px) {
+        .triad {
+          grid-template-columns: 1fr;
+        }
+      }
+      .about-author {
+        background: #fffdf8;
+        border: 1px solid #e6dcc4;
+        border-radius: 10px;
+        padding: 16px;
+        margin-top: 8px;
+      }
+      .about-author a {
+        color: var(--line);
+      }
+      footer {
+        margin-top: 40px;
+        padding-top: 16px;
+        border-top: 1px solid #e6dcc4;
+        font-size: 12px;
+        color: #a1887f;
+        text-align: center;
+      }
+      [data-lang] {
+        display: none;
+      }
+      [data-lang].active {
+        display: block;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page">
+      <header>
+        <a class="back-link" href="../">☯ ← Về trang lập lá số</a>
+        <div class="lang-switch" role="group" aria-label="Ngôn ngữ">
+          <button type="button" data-set-lang="vn">Việt</button>
+          <button type="button" data-set-lang="en">EN</button>
+          <button type="button" data-set-lang="jp">日本語</button>
+        </div>
+      </header>
+
+      <!-- ============ TIẾNG VIỆT ============ -->
+      <div data-lang="vn">
+        <h1>Tử Vi Đẩu Số, nhìn từ góc độ logic</h1>
+        <p class="tagline">Không huyền bí — chỉ là một hệ thống thống kê dân gian được ghi chép cẩn thận.</p>
+
+        <p>
+          Tử Vi Đẩu Số (紫微斗数) là một hệ thống luận giải vận mệnh ra đời ở Trung Quốc,
+          được nhiều thế hệ thầy tử vi đúc kết qua hàng trăm năm quan sát: ghi nhận ngày
+          giờ sinh của rất nhiều người, đối chiếu với những gì xảy ra trong đời họ, rồi
+          khái quát thành quy luật. Nói cách khác, từ rất lâu trước khi có khái niệm
+          "dữ liệu lớn", tử vi đã là một dạng thống kê dân gian được truyền đời này qua
+          đời khác.
+        </p>
+
+        <h2>Tử vi không đoán trước tương lai</h2>
+        <p>
+          Điều đầu tiên cần nói thẳng: tử vi không phải một cỗ máy tiên tri. Nó không cho
+          bạn biết chính xác năm nào lấy vợ, năm nào giàu. Thứ nó cung cấp là một bức
+          tranh xu hướng — những khuynh hướng tính cách, những giai đoạn thuận/nghịch có
+          khả năng lặp lại theo quy luật thống kê. Kỳ vọng một lời tiên tri chính xác từ
+          tử vi là đang đòi hỏi nó làm việc nó chưa từng tuyên bố làm được.
+        </p>
+
+        <h2>Ba yếu tố định hình một đời người: Thiên – Địa – Nhân</h2>
+        <p>
+          Người xưa quan niệm một đời người bị chi phối bởi ba yếu tố. Tử vi, suy cho
+          cùng, chỉ là công cụ đọc một phần ba phương trình đó.
+        </p>
+        <div class="triad">
+          <div class="triad-card">
+            <h3>Thiên — Thời đại</h3>
+            <p>
+              Bối cảnh thời đại bạn đang sống. Người xưa dùng chu kỳ Lục Thập Hoa Giáp —
+              60 năm một vòng thịnh suy — để mô tả điều này. Dù phong kiến hay hiện đại,
+              quy luật thịnh–suy theo chu kỳ vẫn vận hành, chỉ có bối cảnh biểu hiện là
+              khác.
+            </p>
+          </div>
+          <div class="triad-card">
+            <h3>Địa — Môi trường</h3>
+            <p>
+              Nơi bạn được sinh ra và nuôi dưỡng: gia đình, quê hương, những người xung
+              quanh bạn từ nhỏ. Đây là môi trường định hình nên bạn trước khi bạn đủ lớn
+              để tự lựa chọn.
+            </p>
+          </div>
+          <div class="triad-card">
+            <h3>Nhân — Bản thân</h3>
+            <p>
+              Chính là bạn — tư duy, lựa chọn và hành động của riêng bạn. Đây là yếu tố
+              duy nhất trong ba yếu tố mà bạn thực sự nắm trong tay.
+            </p>
+          </div>
+        </div>
+
+        <h2>Vì sao hai người sinh cùng giờ vẫn có hai cuộc đời khác nhau?</h2>
+        <p>
+          Đây là câu hỏi phổ biến nhất khi ai đó mới tiếp cận tử vi: nếu vận mệnh được
+          quyết định bởi ngày giờ sinh, vậy hai anh em sinh đôi cùng giờ, cùng nơi, tại
+          sao lại sống hai cuộc đời khác hẳn nhau? Câu trả lời nằm ở chữ Nhân. Tử vi có
+          thể cho ra một lá số giống hệt nhau cho cả hai, nhưng lá số chỉ mô tả Thiên và
+          một phần Địa — thời điểm và bối cảnh sinh ra. Còn cách mỗi người tư duy, phản
+          ứng và ra quyết định trước cùng một hoàn cảnh là hoàn toàn riêng biệt. Nhân quả
+          của mỗi người, vì vậy, cũng khác nhau.
+        </p>
+
+        <h2>Vì sao cùng một lá số nhưng luận giải lại khác nhau theo thời đại?</h2>
+        <p>
+          Vì chu kỳ Lục Thập Hoa Giáp lặp lại mỗi 60 năm, về mặt kỹ thuật có những người
+          sinh cách nhau đúng 60 năm sẽ ra cùng một lá số. Nhưng đọc lá số đó theo đúng
+          nghĩa đen của sách tử vi thời phong kiến rồi áp vào một người sống ở thế kỷ 21
+          là một sai lầm. Bối cảnh thời đại (Thiên) đã đổi khác hoàn toàn, nên cùng một
+          cấu trúc sao cần được diễn giải lại cho phù hợp với thời đại mới. Dữ liệu luận
+          giải trong tử vi là kinh nghiệm được nhiều đời thầy tử vi tổng hợp qua hàng
+          trăm năm, từng câu chữ mang dấu ấn bối cảnh xã hội lúc nó được ghi lại — có khi
+          cái xưa cho là xấu, nay lại là điều bình thường, thậm chí là lợi thế.
+        </p>
+
+        <h2>Tử vi cho bạn biết gì, và không cho biết gì</h2>
+        <p>
+          Nếu phải dùng một hình ảnh để mô tả: tử vi giống như việc bạn được chia một bộ
+          bài trước khi vào ván chơi. Lá số cho bạn biết trong tay mình có những lá gì —
+          thế mạnh, thế yếu, những giai đoạn thuận lợi hay khó khăn. Nhưng chơi ván bài
+          đó như thế nào, thắng hay thua, là chuyện hoàn toàn ở người cầm bài. Bạn có thể
+          chọn thuận theo lá số ("thuận thiên"), hoặc chủ động thay đổi cách chơi để cải
+          thiện kết quả ("nghịch thiên cải mệnh"). Tử vi không tước đi quyền lựa chọn của
+          bạn — nó chỉ cho bạn thấy rõ hơn bối cảnh mình đang đứng.
+        </p>
+
+        <h2>Vì sao tử vi hay bị gắn mác huyền bí?</h2>
+        <p>
+          Có một khác biệt quan trọng giữa tử vi và những hình thức xem bói dựa trên yếu
+          tố ngẫu nhiên như rút bài Tarot hay gieo quẻ: tử vi được lập hoàn toàn dựa trên
+          dữ liệu cố định — ngày giờ sinh và giới tính — rồi đi qua một hệ thống quy tắc
+          rõ ràng kiểu "nếu... thì..." để suy ra lá số. Cùng một dữ liệu đầu vào sẽ luôn
+          cho cùng một lá số, không có yếu tố may rủi xen vào. Về bản chất, đây gần với
+          một hệ thống suy luận theo quy tắc hơn là một trò chơi may rủi.
+        </p>
+        <p>
+          Vậy vì sao nó vẫn bị gắn mác "huyền bí", "mê tín"? Phần lớn đến từ cách luận
+          giải: để một câu luận giải áp dụng được cho nhiều người, người viết thường phải
+          diễn đạt khá chung chung, nên ai đọc cũng thấy "đúng với mình" ít nhiều. Thêm
+          vào đó, nhiều người xem tử vi như một lời tiên tri tuyệt đối, quên mất rằng nó
+          chỉ phản ánh một phần ba phương trình Thiên – Địa – Nhân. Khi cuộc đời không
+          diễn ra đúng như lá số "dự báo", người ta kết luận rằng cả bộ môn này là mê
+          tín — trong khi tử vi chưa từng tuyên bố mình quyết định toàn bộ số phận.
+        </p>
+
+        <h2>Học tử vi để làm gì?</h2>
+        <p>
+          Suy cho cùng, giá trị thực sự của tử vi không nằm ở việc biết trước tương lai,
+          mà ở việc hiểu rõ hơn về chính mình: xu hướng tính cách, điểm mạnh cần phát
+          huy, điểm yếu cần lưu tâm, giai đoạn nào nên thận trọng, giai đoạn nào nên bứt
+          tốc. Hãy xem nó như một tấm bản đồ tham khảo trước khi ra quyết định, không
+          phải một bản án không thể thay đổi.
+        </p>
+
+        <h2>Về người xây dựng trang này</h2>
+        <div class="about-author">
+          <p style="margin: 0">
+            Trang này được xây dựng và duy trì bởi <strong>Yuduke Nguyen</strong> — người
+            tin rằng một bộ môn truyền thống như tử vi hoàn toàn có thể được trình bày rõ
+            ràng, có hệ thống, thay vì mù mờ và thần thánh hoá. Mã nguồn của dự án được
+            công khai trên
+            <a href="https://github.com/cuisinecometwot/ziwei-chart" target="_blank" rel="noopener">GitHub</a>.
+          </p>
+        </div>
+      </div>
+
+      <!-- ============ ENGLISH ============ -->
+      <div data-lang="en">
+        <h1>Zi Wei Dou Shu, Explained Logically</h1>
+        <p class="tagline">Not mysticism — a carefully recorded system of folk statistics.</p>
+
+        <p>
+          Zi Wei Dou Shu (紫微斗数) is a fate-reading system that originated in China,
+          refined over centuries by generations of practitioners: they recorded people's
+          birth dates and times, compared them against what actually happened in those
+          people's lives, and distilled the patterns into rules. In other words, long
+          before anyone coined the term "big data", Zi Wei was already a form of folk
+          statistics passed down from one generation to the next.
+        </p>
+
+        <h2>Zi Wei Doesn't Predict the Future</h2>
+        <p>
+          Let's be upfront about this: Zi Wei is not a fortune-telling machine. It won't
+          tell you the exact year you'll get married or become wealthy. What it offers is
+          a picture of tendencies — personality inclinations and cycles of fortune that
+          statistically tend to recur. Expecting a precise prophecy from it is asking it
+          to do something it never claimed to do.
+        </p>
+
+        <h2>Three Forces That Shape a Life: Heaven, Earth, Man</h2>
+        <p>
+          Traditional thought holds that a person's life is shaped by three forces. Zi
+          Wei, at its core, is a tool for reading just one-third of that equation.
+        </p>
+        <div class="triad">
+          <div class="triad-card">
+            <h3>Heaven — The Era</h3>
+            <p>
+              The era you live in. The ancients described this with the 60-year Lục Thập
+              Hoa Giáp cycle — a recurring wave of rise and decline. Whether it's a
+              feudal dynasty or the digital age, the same cyclical pattern still plays
+              out; only its outward form changes.
+            </p>
+          </div>
+          <div class="triad-card">
+            <h3>Earth — Environment</h3>
+            <p>
+              Where you were born and raised — your family, your hometown, the people
+              around you before you were old enough to choose for yourself. It's the
+              environment that shapes you before you can shape yourself.
+            </p>
+          </div>
+          <div class="triad-card">
+            <h3>Man — You</h3>
+            <p>
+              Your own thinking, choices, and actions. Of the three forces, this is the
+              only one truly in your hands.
+            </p>
+          </div>
+        </div>
+
+        <h2>Why Do Two People Born at the Same Moment Live Different Lives?</h2>
+        <p>
+          This is the question almost everyone asks when they first encounter Zi Wei: if
+          fate were determined purely by birth time, why do twins — born at the same
+          moment, in the same place — end up living completely different lives? The
+          answer lies in Man. Zi Wei may produce an identical chart for both of them, but
+          a chart only describes Heaven and part of Earth — the moment and context of
+          birth. How each person actually thinks, reacts, and decides in the face of that
+          same context is entirely their own. Their outcomes, as a result, diverge.
+        </p>
+
+        <h2>Why Does the Same Chart Mean Different Things in Different Eras?</h2>
+        <p>
+          Because the 60-year cycle repeats, two people born exactly 60 years apart can
+          technically end up with the same chart. But reading that chart the way a
+          feudal-era text intended, then applying it word-for-word to someone living in
+          the 21st century, is a mistake. The era (Heaven) has changed completely, so the
+          same configuration of stars needs to be reinterpreted for its new context. The
+          interpretive texts used in Zi Wei are experience accumulated by generations of
+          practitioners over hundreds of years, and every line carries the imprint of the
+          social context in which it was written — what was once considered inauspicious
+          may now be entirely ordinary, or even an advantage.
+        </p>
+
+        <h2>What Zi Wei Tells You — and What It Doesn't</h2>
+        <p>
+          If there's one image that captures it best: Zi Wei is like being dealt a hand
+          of cards before a game starts. Your chart tells you what's in your hand — your
+          strengths, your weaknesses, which stretches favor you and which don't. But how
+          you actually play that hand, and whether you win or lose, is entirely up to the
+          player. You can choose to go along with what the chart shows ("flow with
+          Heaven"), or actively change your approach to shape a better outcome ("defy
+          Heaven, reshape your fate"). Zi Wei doesn't take away your agency — it just
+          gives you a clearer view of the table you're sitting at.
+        </p>
+
+        <h2>Why Does Zi Wei Get Labeled as Mystical?</h2>
+        <p>
+          There's an important distinction between Zi Wei and fortune-telling methods
+          that rely on randomness, like drawing a Tarot card or casting lots: a Zi Wei
+          chart is built entirely from fixed inputs — birth date, time, and gender — run
+          through a clearly defined set of "if... then..." rules to derive the chart. The
+          same input always produces the same chart; there's no chance involved. In that
+          sense, it has more in common with a rule-based reasoning system than with a
+          game of chance.
+        </p>
+        <p>
+          So why does it still get labeled "mystical" or "superstitious"? Mostly because
+          of how the interpretations are written: for a reading to apply broadly, the
+          wording tends to be fairly general, so almost anyone reading it finds something
+          that "feels true". On top of that, many people treat Zi Wei as an absolute
+          prophecy, forgetting it only reflects one-third of the Heaven–Earth–Man
+          equation. When life doesn't unfold exactly as the chart "predicted", people
+          conclude the whole practice is superstition — even though Zi Wei never claimed
+          to determine fate entirely on its own.
+        </p>
+
+        <h2>What's the Point of Learning Zi Wei?</h2>
+        <p>
+          In the end, the real value of Zi Wei isn't predicting the future — it's
+          understanding yourself better: your tendencies, the strengths worth leaning
+          into, the weaknesses worth watching, the stretches that call for caution versus
+          the ones that call for momentum. Treat it as a reference map to consult before
+          making a decision, not a verdict you can't change.
+        </p>
+
+        <h2>About the Person Behind This Site</h2>
+        <div class="about-author">
+          <p style="margin: 0">
+            This site is built and maintained by <strong>Yuduke Nguyen</strong>, who
+            believes a traditional practice like Zi Wei can be presented clearly and
+            systematically, rather than left vague and mystified. The project's source
+            code is public on
+            <a href="https://github.com/cuisinecometwot/ziwei-chart" target="_blank" rel="noopener">GitHub</a>.
+          </p>
+        </div>
+      </div>
+
+      <!-- ============ 日本語 ============ -->
+      <div data-lang="jp">
+        <h1>紫微斗数を論理で読み解く</h1>
+        <p class="tagline">神秘ではなく、丁寧に記録されてきた民間統計の体系です。</p>
+
+        <p>
+          紫微斗数（しびとすう）は中国発祥の運命解読体系で、何世代にもわたる占い師たちが
+          何百年もかけて積み重ねてきた観察の結晶です。多くの人の生年月日時を記録し、その後
+          の人生で実際に起きたことと照らし合わせ、そこから規則性を導き出してきました。「ビ
+          ッグデータ」という言葉が生まれるはるか以前から、紫微斗数は世代を超えて受け継がれ
+          てきた一種の民間統計だったのです。
+        </p>
+
+        <h2>紫微斗数は未来を予言しない</h2>
+        <p>
+          まず率直に言っておきたいことがあります。紫微斗数は預言装置ではありません。何年に
+          結婚するか、何年に裕福になるかを正確に言い当てるものではないのです。それが示すの
+          は傾向の見取り図——統計的に繰り返されやすい性格の傾向や、運気の浮き沈みの周期で
+          す。紫微斗数に正確な預言を期待するのは、それが元々果たすと言っていない役割を求め
+          ることになります。
+        </p>
+
+        <h2>人生を形づくる三つの力：天・地・人</h2>
+        <p>
+          古来、人の一生は三つの力によって形づくられると考えられてきました。紫微斗数は、突
+          き詰めればその方程式の三分の一を読み解く道具にすぎません。
+        </p>
+        <div class="triad">
+          <div class="triad-card">
+            <h3>天——時代</h3>
+            <p>
+              あなたが生きる時代の背景。昔の人はこれを60年で一巡する「六十花甲子」という
+              サイクルで表現しました。封建時代であろうと現代であろうと、盛衰が周期的に巡る
+              法則そのものは変わらず、ただその現れ方が異なるだけです。
+            </p>
+          </div>
+          <div class="triad-card">
+            <h3>地——環境</h3>
+            <p>
+              あなたが生まれ育った場所——家族、故郷、幼い頃からそばにいた人々。自分で選択
+              できるようになる前に、あなたを形づくった環境です。
+            </p>
+          </div>
+          <div class="triad-card">
+            <h3>人——あなた自身</h3>
+            <p>
+              あなた自身の考え方、選択、そして行動。三つの力のうち、あなたが本当の意味で手
+              にしているのはこれだけです。
+            </p>
+          </div>
+        </div>
+
+        <h2>なぜ同じ時刻に生まれた二人が違う人生を歩むのか</h2>
+        <p>
+          紫微斗数に初めて触れた人がほぼ必ず抱く疑問がこれです——運命が生年月日時だけで決
+          まるなら、同じ時刻・同じ場所で生まれた双子が、なぜまったく違う人生を歩むのか。答
+          えは「人」にあります。紫微斗数は二人にまったく同じ命盤を導き出すかもしれません
+          が、命盤が描いているのは「天」と「地」の一部——生まれた瞬間とその背景だけです。
+          同じ状況を前にして、それぞれがどう考え、どう反応し、どう決断するかはまったくの別
+          物であり、その結果としての人生もまた違うものになるのです。
+        </p>
+
+        <h2>なぜ同じ命盤でも時代によって解釈が異なるのか</h2>
+        <p>
+          六十花甲子は60年ごとに巡ってくるため、技術的にはちょうど60年違いで生まれた人同
+          士が同じ命盤になることがあります。しかし、封建時代の書物の文言をそのまま21世紀
+          に生きる人に当てはめて読むのは誤りです。時代背景（天）がまったく変わっているので
+          すから、同じ星の配置でも新しい時代に合わせて解釈し直す必要があります。紫微斗数の
+          解釈データは、何百年にもわたり何代もの占い師が積み重ねてきた経験であり、一つひと
+          つの文言にそれが書かれた時代の社会背景が刻まれています——昔は凶とされたことが、
+          今ではごく普通のこと、あるいはむしろ強みになっている場合すらあります。
+        </p>
+
+        <h2>紫微斗数が教えてくれること、教えてくれないこと</h2>
+        <p>
+          一つのたとえで言うなら、紫微斗数はゲームが始まる前に配られたトランプの手札のよう
+          なものです。命盤はあなたの手の中に何があるかを教えてくれます——強み、弱み、うま
+          くいきやすい局面とそうでない局面。しかし、その手札をどう使い、勝つか負けるかを決
+          めるのは、完全にプレイヤー次第です。命盤の示す流れに沿う（「天に順う」）ことも、
+          あえて流れに逆らって結果を変えていく（「天に逆らい命を改める」）こともできます。
+          紫微斗数はあなたの選ぶ権利を奪うものではなく、あなたが今どんな盤面に立っているか
+          をより明確に見せてくれるだけなのです。
+        </p>
+
+        <h2>なぜ紫微斗数は「神秘的」と見られがちなのか</h2>
+        <p>
+          紫微斗数と、タロットカードを引いたりくじを引いたりするような偶然性に基づく占いと
+          の間には、重要な違いがあります。紫微斗数の命盤は、生年月日時と性別という固定され
+          たデータだけをもとに、明確な「もし……ならば……」という規則に従って導き出されま
+          す。同じ入力からは常に同じ命盤が得られ、そこに偶然の要素は入り込みません。その意
+          味では、運任せのゲームというより、ルールに基づく推論システムに近いものです。
+        </p>
+        <p>
+          それでもなぜ「神秘的」「迷信的」と見られてしまうのでしょうか。多くは解釈文の書き
+          方に理由があります。多くの人に当てはまるようにするため、解釈の文言はどうしても一
+          般的な表現になりがちで、読む人の多くが「自分に当てはまる」と感じてしまうのです。
+          さらに、多くの人が紫微斗数を絶対的な預言として扱い、それが天・地・人という方程式
+          のわずか三分の一にすぎないことを忘れてしまいます。人生が命盤の「予言」通りに進ま
+          なかったとき、人々はこの学問全体を迷信だと結論づけますが、紫微斗数自身は一度も運
+          命のすべてを決めるとは言っていないのです。
+        </p>
+
+        <h2>紫微斗数を学ぶ意味とは</h2>
+        <p>
+          結局のところ、紫微斗数の本当の価値は未来を言い当てることではなく、自分自身をより
+          深く理解することにあります——自分の性格の傾向、伸ばすべき強み、気をつけるべき弱
+          み、慎重になるべき時期と、勢いに乗るべき時期。命盤は変えられない判決文ではなく、
+          決断を下す前に参照する地図として使うものです。
+        </p>
+
+        <h2>このサイトの運営者について</h2>
+        <div class="about-author">
+          <p style="margin: 0">
+            このサイトは <strong>Yuduke Nguyen</strong> によって制作・運営されています。
+            紫微斗数のような伝統的な学問も、曖昧にせず、神秘化せず、筋道立てて明快に伝えら
+            れるはずだと信じています。プロジェクトのソースコードは
+            <a href="https://github.com/cuisinecometwot/ziwei-chart" target="_blank" rel="noopener">GitHub</a>
+            で公開されています。
+          </p>
+        </div>
+      </div>
+
+      <footer>Nội dung mang tính tham khảo, phục vụ mục đích văn hóa và giáo dục.</footer>
+    </div>
+
+    <script>
+      (function () {
+        var STORAGE_KEY = 'lasotuvi-lang';
+        var supported = ['vn', 'en', 'jp'];
+        var saved = null;
+        try {
+          saved = localStorage.getItem(STORAGE_KEY);
+        } catch (e) {}
+        var lang = supported.indexOf(saved) !== -1 ? saved : 'vn';
+
+        function apply(lang) {
+          document.querySelectorAll('[data-lang]').forEach(function (el) {
+            el.classList.toggle('active', el.getAttribute('data-lang') === lang);
+          });
+          document.querySelectorAll('[data-set-lang]').forEach(function (btn) {
+            btn.classList.toggle('active', btn.getAttribute('data-set-lang') === lang);
+          });
+          document.documentElement.lang = lang === 'en' ? 'en' : lang === 'jp' ? 'ja' : 'vi';
+        }
+
+        document.querySelectorAll('[data-set-lang]').forEach(function (btn) {
+          btn.addEventListener('click', function () {
+            lang = btn.getAttribute('data-set-lang');
+            try {
+              localStorage.setItem(STORAGE_KEY, lang);
+            } catch (e) {}
+            apply(lang);
+          });
+        });
+
+        apply(lang);
+      })();
+    </script>
+  </body>
+</html>
