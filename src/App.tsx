@@ -80,11 +80,35 @@ function App() {
         backgroundColor: '#fbf6ec',
       });
       node.style.width = prev;
-      const link = document.createElement('a');
       const slug = (form.name || 'laso').trim().replace(/\s+/g, '-');
-      link.download = `laso-tuvi-${slug}.png`;
-      link.href = dataUrl;
-      link.click();
+      const filename = `laso-tuvi-${slug}.png`;
+
+      // iOS Safari ignores the `download` attribute on <a> and just navigates
+      // to the URL instead of saving it, so there's no way to trigger a real
+      // download there — open the image in a new tab and let the user save it
+      // manually (press-and-hold → Save Image).
+      const isIOS =
+        /iP(hone|ad|od)/.test(navigator.userAgent) ||
+        // iPadOS reports itself as "Macintosh" by default; the touch-point
+        // check is the standard way to tell it apart from a real Mac.
+        (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+      if (isIOS) {
+        window.open(dataUrl, '_blank');
+        alert(t('iosSaveHint'));
+      } else {
+        // Convert to a blob URL rather than using the data URL directly: some
+        // mobile/in-app browsers (and detached <a> elements) won't honor
+        // `download` on a raw data: URI.
+        const blob = await (await fetch(dataUrl)).blob();
+        const blobUrl = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.download = filename;
+        link.href = blobUrl;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        setTimeout(() => URL.revokeObjectURL(blobUrl), 1000);
+      }
     } catch (err) {
       console.error(err);
       alert('Không thể xuất ảnh PNG: ' + (err instanceof Error ? err.message : String(err)));
