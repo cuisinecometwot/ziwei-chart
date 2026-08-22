@@ -1,9 +1,16 @@
 import { useTranslation } from 'react-i18next';
+import type { TFunction } from 'i18next';
 import { translateTerm, formatHour } from '../i18n/dict';
+import type { Chart } from '../types';
 
 const MONTH_NAMES_VN = ['Giêng', 'Hai', 'Ba', 'Tư', 'Năm', 'Sáu', 'Bảy', 'Tám', 'Chín', 'Mười', 'Một', 'Chạp'];
 
-export default function CenterBlock({ chart, t }) {
+interface CenterBlockProps {
+  chart: Chart;
+  t: TFunction;
+}
+
+export default function CenterBlock({ chart, t }: CenterBlockProps) {
   const { i18n } = useTranslation();
   const lang = i18n.language;
   const info = chart.info;
@@ -16,7 +23,7 @@ export default function CenterBlock({ chart, t }) {
         ? `${info.lunarDay}/${info.lunarMonth} (lunar)`
         : `${info.lunarMonth}月${info.lunarDay}日`;
 
-  const rows = [
+  const rows: { k: string; v: string }[] = [
     { k: t('nameLabel'), v: info.name },
     { k: t('genderWord'), v: t(info.gender === 'male' ? 'male' : 'female') },
     { k: t('amDuong'), v: translateTerm(info.amDuong, lang) },

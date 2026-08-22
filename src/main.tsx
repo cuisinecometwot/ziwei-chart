@@ -5,7 +5,10 @@ import App from './App';
 import ErrorBoundary from './components/ErrorBoundary';
 import './styles/app.css';
 
-createRoot(document.getElementById('root')).render(
+const rootEl = document.getElementById('root');
+if (!rootEl) throw new Error('Không tìm thấy phần tử #root');
+
+createRoot(rootEl).render(
   <React.StrictMode>
     <ErrorBoundary>
       <App />

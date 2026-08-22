@@ -31,6 +31,10 @@ jobs:
 
       - name: Build
         run: npm run build
+        env:
+          # URL của Cloudflare Worker API (luận giải). Thiết lập biến repository
+          # VITE_API_URL trong GitHub Settings -> Secrets and variables -> Actions.
+          VITE_API_URL: ${{ vars.VITE_API_URL }}
 
       - name: Configure Pages
         uses: actions/configure-pages@v5

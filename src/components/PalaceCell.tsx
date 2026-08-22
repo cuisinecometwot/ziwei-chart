@@ -1,9 +1,11 @@
 import { useTranslation } from 'react-i18next';
+import type { TFunction } from 'i18next';
 import { translateTerm, statusText, HOA_SHORT } from '../i18n/dict';
+import type { HoaType, Palace, Star } from '../types';
 
-const HOA_CLASS = { loc: 'hoa-loc', quyen: 'hoa-quyen', khoa: 'hoa-khoa', ky: 'hoa-ky' };
+const HOA_CLASS: Record<HoaType, string> = { loc: 'hoa-loc', quyen: 'hoa-quyen', khoa: 'hoa-khoa', ky: 'hoa-ky' };
 
-function StarTag({ star }) {
+function StarTag({ star }: { star: Star }) {
   const { i18n } = useTranslation();
   const lang = i18n.language;
   const name = translateTerm(star.name, lang);
@@ -16,7 +18,12 @@ function StarTag({ star }) {
   );
 }
 
-export default function PalaceCell({ palace, t }) {
+interface PalaceCellProps {
+  palace: Palace;
+  t: TFunction;
+}
+
+export default function PalaceCell({ palace, t }: PalaceCellProps) {
   const { i18n } = useTranslation();
   const lang = i18n.language;
   const name = translateTerm(palace.name, lang);
@@ -92,7 +99,7 @@ export default function PalaceCell({ palace, t }) {
 }
 
 // Star brightness (miếu/vượng/đắc/hãm/bình). Some stars have no status.
-function Brightness({ star }) {
+function Brightness({ star }: { star: Star }) {
   const { i18n } = useTranslation();
   const lang = i18n.language;
   if (!star.status) return null;

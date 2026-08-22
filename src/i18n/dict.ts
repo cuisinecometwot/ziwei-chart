@@ -2,7 +2,9 @@
 // The calculation engine (tuvi-neo) outputs Vietnamese names; the UI layer
 // maps them to English / Japanese at render time (see spec section 3.1).
 
-const PALACES = {
+type TermDict = Record<string, { en: string; jp: string }>;
+
+const PALACES: TermDict = {
   Mệnh: { en: 'Life Palace', jp: '命宮' },
   'Huynh đệ': { en: 'Siblings', jp: '兄弟宮' },
   'Phu thê': { en: 'Spouse', jp: '夫妻宮' },
@@ -17,7 +19,7 @@ const PALACES = {
   'Phụ mẫu': { en: 'Parents', jp: '父母宮' },
 };
 
-const STARS = {
+const STARS: TermDict = {
   'Tử vi': { en: 'Emperor (Zi Wei)', jp: '紫微' },
   'Liêm trinh': { en: 'Diplomat (Lian Zhen)', jp: '廉貞' },
   'Thiên đồng': { en: 'Heavenly Child (Tian Tong)', jp: '天同' },
@@ -131,7 +133,7 @@ const STARS = {
   'Hóa kỵ': { en: 'Transformation of Obstruction', jp: '化忌' },
 };
 
-const STEMS = {
+const STEMS: TermDict = {
   Giáp: { en: 'Jia', jp: '甲' },
   Ất: { en: 'Yi', jp: '乙' },
   Bính: { en: 'Bing', jp: '丙' },
@@ -144,7 +146,7 @@ const STEMS = {
   Quý: { en: 'Gui', jp: '癸' },
 };
 
-const BRANCHES = {
+const BRANCHES: TermDict = {
   Tý: { en: 'Rat', jp: '子' },
   Sửu: { en: 'Ox', jp: '丑' },
   Dần: { en: 'Tiger', jp: '寅' },
@@ -160,9 +162,9 @@ const BRANCHES = {
 };
 
 // Watch out: branch "Tị" (Snake) vs stem "Kỷ" (Ji) - keys are distinct.
-const BRANCH_ALIASES = { Tí: 'Tý', Sữu: 'Sửu', Tỵ: 'Tị', Kỹ: 'Kỷ' };
+const BRANCH_ALIASES: Record<string, string> = { Tí: 'Tý', Sữu: 'Sửu', Tỵ: 'Tị', Kỹ: 'Kỷ' };
 
-const MONTHS = {
+const MONTHS: TermDict = {
   Giêng: { en: '1st', jp: '正月' },
   Hai: { en: '2nd', jp: '二月' },
   Ba: { en: '3rd', jp: '三月' },
@@ -177,7 +179,7 @@ const MONTHS = {
   Chạp: { en: '12th', jp: '十二月' },
 };
 
-const STATUS = {
+const STATUS: Record<string, { vn: string; en: string; jp: string }> = {
   M: { vn: '(M)', en: 'Excellent (Miào)', jp: '廟' },
   V: { vn: '(V)', en: 'Prosperous (Wàng)', jp: '旺' },
   Đ: { vn: '(Đ)', en: 'Adequate (Dé)', jp: '得' },
@@ -186,7 +188,7 @@ const STATUS = {
   N: { vn: '—', en: '—', jp: '—' },
 };
 
-const CUC = {
+const CUC: TermDict = {
   'Thủy nhị cục': { en: 'Water Bureau (2)', jp: '水二局' },
   'Mộc tam cục': { en: 'Wood Bureau (3)', jp: '木三局' },
   'Kim tứ cục': { en: 'Metal Bureau (4)', jp: '金四局' },
@@ -194,45 +196,45 @@ const CUC = {
   'Hỏa lục cục': { en: 'Fire Bureau (6)', jp: '火六局' },
 };
 
-const AM_DUONG = {
+const AM_DUONG: TermDict = {
   'Dương Nam': { en: 'Yang Male', jp: '陽男' },
   'Âm Nam': { en: 'Yin Male', jp: '陰男' },
   'Dương Nữ': { en: 'Yang Female', jp: '陽女' },
   'Âm Nữ': { en: 'Yin Female', jp: '陰女' },
 };
 
-export const translateTerm = (term, lang) => {
-  if (!term) return term;
+export const translateTerm = (term: string | undefined | null, lang: string): string => {
+  if (!term) return term as string;
   const norm = BRANCH_ALIASES[term] || term;
   if (lang === 'vn' || lang === 'vi') return norm;
   const table =
     PALACES[norm] || STARS[norm] || STEMS[norm] || BRANCHES[norm] || CUC[norm] || MONTHS[norm] || AM_DUONG[norm];
   if (!table) return term;
-  return table[lang] || table.en || term;
+  return (table as Record<string, string>)[lang] || table.en || term;
 };
 
-export const formatHour = (branch, lang) => {
+export const formatHour = (branch: string, lang: string): string => {
   const b = translateTerm(branch, lang);
   if (lang === 'vn') return `Giờ ${b}`;
   if (lang === 'en') return `${b} hour`;
   return `${b}時`;
 };
 
-export const translateGanZhi = (can, chi, lang) =>
+export const translateGanZhi = (can: string, chi: string, lang: string): string =>
   `${translateTerm(can, lang)} ${translateTerm(chi, lang)}`;
 
-export const statusText = (code, lang) => {
+export const statusText = (code: string, lang: string): string => {
   const s = STATUS[code];
-  return s ? s[lang] || s.en || code : code;
+  return s ? (s as Record<string, string>)[lang] || s.en || code : code;
 };
 
-export const HOA_SHORT = {
+export const HOA_SHORT: Record<string, { loc: string; quyen: string; khoa: string; ky: string }> = {
   vn: { loc: 'Lộc', quyen: 'Quyền', khoa: 'Khoa', ky: 'Kỵ' },
   en: { loc: 'Lu', quyen: 'Quan', khoa: 'Ke', ky: 'Ji' },
   jp: { loc: '禄', quyen: '権', khoa: '科', ky: '忌' },
 };
 
-export const UI = {
+export const UI: Record<string, Record<string, string>> = {
   vn: {
     appTitle: 'Lá Số Tử Vi',
     tagline: 'Tử Vi Đẩu Số - Lập lá số trực tuyến',
@@ -248,7 +250,7 @@ export const UI = {
     year: 'Năm',
     hourLabel: 'Giờ sinh',
     hourHint: 'Chọn giờ âm lịch (2 giờ = 1 giờ chi)',
-    generateBtn: 'Lập lá số',
+    scrollToChartBtn: 'Xem lá số',
     downloadPng: 'Tải ảnh PNG',
     chartTitle: 'Lá Số Tử Vi',
     menh: 'Mệnh',
@@ -278,8 +280,14 @@ export const UI = {
     note: 'Lá số được lập theo phái Tử Vi truyền thống Việt Nam. Kết quả mang tính tham khảo.',
     footer: 'Ứng dụng tĩnh, chạy hoàn toàn trên trình duyệt.',
     language: 'Ngôn ngữ',
-    loading: 'Đang lập lá số...',
-    emptyTitle: 'Nhập thông tin và bấm "Lập lá số" để xem lá số Tử Vi của bạn',
+    exportingPng: 'Đang xuất ảnh...',
+    interpLoading: 'Đang tải luận giải...',
+    interpRetry: 'Thử lại',
+    interpVerify: 'Xác minh để xem luận giải:',
+    interpTitle: 'Luận giải lá số',
+    interpGet: 'Nhận luận giải',
+    interpPreviewBanner: '🔍 Đây là bản xem trước. Bản luận giải đầy đủ (12 cung, cách cục, tương quan giữa các cung...) sẽ sớm ra mắt.',
+    interpLockedMore: 'Còn {{count}} mục nữa trong bản đầy đủ (sắp ra mắt).',
   },
   en: {
     appTitle: 'Zi Wei Chart',
@@ -296,7 +304,7 @@ export const UI = {
     year: 'Year',
     hourLabel: 'Birth hour',
     hourHint: 'Select the Chinese double-hour',
-    generateBtn: 'Generate chart',
+    scrollToChartBtn: 'View chart',
     downloadPng: 'Download PNG',
     chartTitle: 'Zi Wei Chart',
     menh: 'Life',
@@ -326,8 +334,14 @@ export const UI = {
     note: 'Chart generated per traditional Vietnamese Zi Wei school. For reference only.',
     footer: 'Fully static app, runs entirely in your browser.',
     language: 'Language',
-    loading: 'Generating chart...',
-    emptyTitle: 'Enter your details and click "Generate chart" to see your Zi Wei chart',
+    exportingPng: 'Exporting image...',
+    interpLoading: 'Loading interpretation...',
+    interpRetry: 'Retry',
+    interpVerify: 'Verify you are human to view the interpretation:',
+    interpTitle: 'Chart interpretation',
+    interpGet: 'Get interpretation',
+    interpPreviewBanner: '🔍 This is a preview. The full interpretation (all 12 palaces, patterns, palace relationships...) is coming soon.',
+    interpLockedMore: '{{count}} more in the full version (coming soon).',
   },
   jp: {
     appTitle: '紫微斗数',
@@ -344,7 +358,7 @@ export const UI = {
     year: '年',
     hourLabel: '生まれた時刻',
     hourHint: '十二時辰を選択',
-    generateBtn: '排盤',
+    scrollToChartBtn: '命盤を見る',
     downloadPng: 'PNG保存',
     chartTitle: '紫微斗数命盤',
     menh: '命宮',
@@ -374,7 +388,13 @@ export const UI = {
     note: '伝統的なベトナム紫微斗数の流派に基づき排盤しています。参考用です。',
     footer: '完全にブラウザ上で動作する静的アプリです。',
     language: '言語',
-    loading: '排盤中...',
-    emptyTitle: '情報を入力して「排盤」を押すと命盤が表示されます',
+    exportingPng: '画像を書き出し中...',
+    interpLoading: '解釈を読み込み中...',
+    interpRetry: '再試行',
+    interpVerify: '解釈を表示するには認証してください:',
+    interpTitle: '命盤の解釈',
+    interpGet: '解釈を取得',
+    interpPreviewBanner: '🔍 これはプレビューです。全12宮・格局・宮同士の関係を含む完全版は近日公開予定です。',
+    interpLockedMore: '完全版ではさらに{{count}}件（近日公開）。',
   },
 };

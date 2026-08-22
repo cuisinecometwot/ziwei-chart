@@ -3,12 +3,13 @@ import { useTranslation } from 'react-i18next';
 import Controls from './components/Controls';
 import ErrorBoundary from './components/ErrorBoundary';
 import { buildChart } from './core/chart';
+import type { Chart, FormState } from './types';
 
 // html-to-image is only needed when the user exports a PNG, so load it lazily
 // to keep the initial bundle small (web.dev/learn/performance/code-split-javascript).
 const toPngPromise = import('html-to-image').then((m) => m.toPng);
 
-const DEFAULT_FORM = {
+const DEFAULT_FORM: FormState = {
   name: 'Nguyễn Văn A',
   gender: 'male',
   day: 15,
@@ -17,14 +18,22 @@ const DEFAULT_FORM = {
   hour: 7,
 };
 
+const LANGS: { code: string; label: string }[] = [
+  { code: 'vn', label: 'Việt' },
+  { code: 'en', label: 'EN' },
+  { code: 'jp', label: '日本語' },
+];
+
+const docLang = (lng: string): string => (lng === 'en' ? 'en' : lng === 'jp' ? 'ja' : 'vi');
+
 // The chart itself only depends on the small core module; the heavy engine is
-// bundled separately (see vite.config.js manualChunks) so it loads in parallel.
+// bundled separately (see vite.config.ts manualChunks) so it loads in parallel.
 function App() {
   const { t, i18n } = useTranslation();
-  const [form, setForm] = useState(DEFAULT_FORM);
-  const [chart, setChart] = useState(() => buildChart(DEFAULT_FORM));
+  const [form, setForm] = useState<FormState>(DEFAULT_FORM);
+  const [chart, setChart] = useState<Chart>(() => buildChart(DEFAULT_FORM));
   const [exporting, setExporting] = useState(false);
-  const chartRef = useRef(null);
+  const chartRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     try {
@@ -47,11 +56,11 @@ function App() {
 
   // Keep the document language and title in sync with the UI language.
   useEffect(() => {
-    document.documentElement.lang = i18n.language === 'en' ? 'en' : i18n.language === 'jp' ? 'ja' : 'vi';
+    document.documentElement.lang = docLang(i18n.language);
     document.title = t('appTitle');
   }, [i18n.language, t]);
 
-  const changeLang = (lng) => {
+  const changeLang = (lng: string) => {
     i18n.changeLanguage(lng);
     localStorage.setItem('lasotuvi-lang', lng);
   };
@@ -78,7 +87,7 @@ function App() {
       link.click();
     } catch (err) {
       console.error(err);
-      alert('Không thể xuất ảnh PNG: ' + err.message);
+      alert('Không thể xuất ảnh PNG: ' + (err instanceof Error ? err.message : String(err)));
     } finally {
       setExporting(false);
     }
@@ -95,14 +104,14 @@ function App() {
           </div>
         </div>
         <div className="lang-switch" role="group" aria-label={t('language')}>
-          {['vn', 'en', 'jp'].map((l) => (
+          {LANGS.map((l) => (
             <button
-              key={l}
-              className={i18n.language === l ? 'active' : ''}
-              aria-pressed={i18n.language === l}
-              onClick={() => changeLang(l)}
+              key={l.code}
+              className={i18n.language === l.code ? 'active' : ''}
+              aria-pressed={i18n.language === l.code}
+              onClick={() => changeLang(l.code)}
             >
-              {l === 'vn' ? 'Việt' : l === 'en' ? 'EN' : '日本語'}
+              {l.label}
             </button>
           ))}
         </div>
@@ -114,22 +123,18 @@ function App() {
           <button
             className="btn-download"
             onClick={handleDownload}
-            disabled={exporting || !chart}
+            disabled={exporting}
             aria-busy={exporting}
           >
-            {exporting ? t('loading') : `⬇ ${t('downloadPng')}`}
+            {exporting ? t('exportingPng') : `⬇ ${t('downloadPng')}`}
           </button>
           <p className="disclaimer">{t('note')}</p>
         </aside>
 
         <section className="chart-section" aria-label={t('chartTitle')}>
-          {chart ? (
-            <ErrorBoundary>
-              <ChartView ref={chartRef} chart={chart} t={t} />
-            </ErrorBoundary>
-          ) : (
-            <div className="empty-state">{t('emptyTitle')}</div>
-          )}
+          <ErrorBoundary>
+            <ChartView ref={chartRef} chart={chart} t={t} />
+          </ErrorBoundary>
         </section>
       </main>
 

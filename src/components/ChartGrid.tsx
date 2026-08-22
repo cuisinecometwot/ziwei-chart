@@ -1,21 +1,29 @@
 import { forwardRef } from 'react';
 import { useTranslation } from 'react-i18next';
+import type { TFunction } from 'i18next';
 import PalaceCell from './PalaceCell';
 import CenterBlock from './CenterBlock';
+import InterpretationPanel from './InterpretationPanel';
 import { translateTerm, formatHour } from '../i18n/dict';
+import type { Chart, Palace } from '../types';
 
-const AREA_BY_BRANCH = {
+const AREA_BY_BRANCH: Record<string, string> = {
   Tý: 'ty', Sửu: 'suu', Dần: 'dan', Mão: 'mao', Thìn: 'thin',
   Tị: 'ti', Ngọ: 'ngo', Mùi: 'mui', Thân: 'than', Dậu: 'dau',
   Tuất: 'tuat', Hợi: 'hoi',
 };
 
-const ChartGrid = forwardRef(function ChartGrid({ chart, t }, ref) {
+interface ChartGridProps {
+  chart: Chart;
+  t: TFunction;
+}
+
+const ChartGrid = forwardRef<HTMLDivElement, ChartGridProps>(function ChartGrid({ chart, t }, ref) {
   const { i18n } = useTranslation();
   const lang = i18n.language;
   const info = chart.info;
 
-  const cells = {};
+  const cells: Record<string, Palace> = {};
   chart.palaces.forEach((p) => {
     cells[AREA_BY_BRANCH[p.branch]] = p;
   });
@@ -68,6 +76,8 @@ const ChartGrid = forwardRef(function ChartGrid({ chart, t }, ref) {
         <span>{t('tagline')}</span>
         <span className="footer-note">{t('note')}</span>
       </div>
+
+      <InterpretationPanel chart={chart} />
     </div>
   );
 });

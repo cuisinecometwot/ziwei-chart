@@ -1,0 +1,8 @@
+# Sao chép file này thành `.dev.vars` để `wrangler dev` tự nạp (file `.dev.vars`
+# đã có trong .gitignore ở thư mục gốc, không bị commit).
+#
+# ENVIRONMENT=local giúp route /api/interpret/full luôn trả về dữ liệu đầy đủ
+# khi chạy local, không cần dựng cổng thanh toán thật để phát triển/kiểm thử.
+# Route /api/interpret (bản xem trước) không bị ảnh hưởng bởi biến này — luôn
+# trả về preview để bạn kiểm thử đúng nội dung mà người dùng thật sẽ thấy.
+ENVIRONMENT=local

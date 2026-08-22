@@ -1,23 +1,27 @@
 import { useTranslation } from 'react-i18next';
 import { DOUBLE_HOURS } from '../core/chart';
 import { translateTerm } from '../i18n/dict';
+import type { FormState } from '../types';
 
-export default function Controls({ form, onChange, onSubmit }) {
+interface ControlsProps {
+  form: FormState;
+  onChange: (form: FormState) => void;
+  onSubmit: () => void;
+}
+
+export default function Controls({ form, onChange, onSubmit }: ControlsProps) {
   const { t, i18n } = useTranslation();
   const lang = i18n.language;
 
-  const set = (patch) => onChange({ ...form, ...patch });
+  const set = (patch: Partial<FormState>) => onChange({ ...form, ...patch });
 
-  const years = [];
+  const years: number[] = [];
   for (let y = 1920; y <= new Date().getFullYear(); y++) years.push(y);
 
   return (
     <form
       className="controls"
-      onSubmit={(e) => {
-        e.preventDefault();
-        onSubmit();
-      }}
+      onSubmit={(e) => e.preventDefault()}
     >
       <h2>{t('formTitle')}</h2>
 
@@ -36,7 +40,7 @@ export default function Controls({ form, onChange, onSubmit }) {
       <fieldset className="field fieldset">
         <legend>{t('genderLabel')}</legend>
         <div className="gender-row">
-          {['male', 'female'].map((g) => (
+          {(['male', 'female'] as const).map((g) => (
             <label key={g} className={`radio ${form.gender === g ? 'checked' : ''}`}>
               <input
                 type="radio"
@@ -109,8 +113,10 @@ export default function Controls({ form, onChange, onSubmit }) {
         <small className="hint">{t('hourHint')}</small>
       </div>
 
-      <button type="submit" className="btn-primary">
-        ☯ {t('generateBtn')}
+      {/* Chart already updates live as fields change; this only jumps to it,
+          which matters on the stacked mobile layout (hidden on desktop via CSS). */}
+      <button type="button" className="btn-scroll-to-chart" onClick={onSubmit}>
+        {t('scrollToChartBtn')} ↓
       </button>
     </form>
   );

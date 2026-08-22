@@ -1,16 +1,17 @@
 import { generateLaSo } from 'tuvi-neo';
+import type { Chart, ChartInfo, Gender, HoaType, Palace } from '../types';
 
 export const STEM_ORDER = ['Giáp', 'Ất', 'Bính', 'Đinh', 'Mậu', 'Kỷ', 'Canh', 'Tân', 'Nhâm', 'Quý'];
 export const BRANCH_ORDER = ['Tý', 'Sửu', 'Dần', 'Mão', 'Thìn', 'Tị', 'Ngọ', 'Mùi', 'Thân', 'Dậu', 'Tuất', 'Hợi'];
 
-const BRANCH_NORMALIZE = { Tí: 'Tý', Sữu: 'Sửu', Tỵ: 'Tị', Kỹ: 'Kỷ' };
-const PALACE_NORMALIZE = { Di: 'Thiên di' };
+const BRANCH_NORMALIZE: Record<string, string> = { Tí: 'Tý', Sữu: 'Sửu', Tỵ: 'Tị', Kỹ: 'Kỷ' };
+const PALACE_NORMALIZE: Record<string, string> = { Di: 'Thiên di' };
 
-export const normalizeBranch = (b) => BRANCH_NORMALIZE[b] || b;
+export const normalizeBranch = (b: string): string => BRANCH_NORMALIZE[b] || b;
 
 // Palace grid coordinates by 0-based ChiCung index (Tý=0 ... Hợi=11).
 // Classic layout with a 2x2 center block.
-export const GRID_POS = {
+export const GRID_POS: Record<number, { row: number; col: number }> = {
   0: { row: 3, col: 2 }, // Tý
   1: { row: 3, col: 1 }, // Sửu
   2: { row: 3, col: 0 }, // Dần
@@ -26,12 +27,12 @@ export const GRID_POS = {
 };
 
 // Ngũ Hổ Độn: can at the Dần palace from the year's can (0-based index).
-const canAtDan = (canIdx) => ((canIdx % 5) * 2 + 2) % 10;
+const canAtDan = (canIdx: number) => ((canIdx % 5) * 2 + 2) % 10;
 // Can at branch b (0-based, Tý=0), counting forward from Dần.
-const canAtBranch = (canIdx, branchIdx) => (canAtDan(canIdx) + ((branchIdx - 2 + 12) % 12)) % 10;
+const canAtBranch = (canIdx: number, branchIdx: number) => (canAtDan(canIdx) + ((branchIdx - 2 + 12) % 12)) % 10;
 
 // Tiểu Hạn starting palace (1-based position, Tý=1) for age 1, by year branch.
-const tieuHanStart = (dcNam) => {
+const tieuHanStart = (dcNam: number): number => {
   switch (dcNam % 4) {
     case 3: return 5; // Dần/Ngọ/Tuất -> Tị
     case 1: return 11; // Tý/Thìn/Thân -> Tuất
@@ -40,10 +41,10 @@ const tieuHanStart = (dcNam) => {
   }
 };
 
-const mod = (a, m) => ((a % m) + m) % m;
+const mod = (a: number, m: number) => ((a % m) + m) % m;
 
 // 12 double-hours with the representative 24h value passed to the engine.
-export const DOUBLE_HOURS = [
+export const DOUBLE_HOURS: { branch: string; hour: number; range: string }[] = [
   { branch: 'Tý', hour: 23, range: '23:00–01:00' },
   { branch: 'Sửu', hour: 1, range: '01:00–03:00' },
   { branch: 'Dần', hour: 3, range: '03:00–05:00' },
@@ -58,11 +59,8 @@ export const DOUBLE_HOURS = [
   { branch: 'Hợi', hour: 21, range: '21:00–23:00' },
 ];
 
-const isDnan = (male, tcNam) =>
-  (male && tcNam % 2 === 1) || (!male && tcNam % 2 === 0);
-
 // Standard year-stem Four Transformations (Tứ Hóa).
-export const TUHOA_BY_CAN = {
+export const TUHOA_BY_CAN: Record<string, Record<HoaType, string>> = {
   Giáp: { loc: 'Liêm trinh', quyen: 'Phá quân', khoa: 'Vũ khúc', ky: 'Thái dương' },
   Ất: { loc: 'Thiên cơ', quyen: 'Thiên lương', khoa: 'Tử vi', ky: 'Thái âm' },
   Bính: { loc: 'Thiên đồng', quyen: 'Thiên cơ', khoa: 'Văn xương', ky: 'Liêm trinh' },
@@ -75,15 +73,25 @@ export const TUHOA_BY_CAN = {
   Quý: { loc: 'Phá quân', quyen: 'Cự môn', khoa: 'Thái âm', ky: 'Tham lang' },
 };
 
-const TUHOA_TYPE = { 'Hóa lộc': 'loc', 'Hóa quyền': 'quyen', 'Hóa khoa': 'khoa', 'Hóa kỵ': 'ky' };
+const TUHOA_TYPE: Record<string, HoaType> = { 'Hóa lộc': 'loc', 'Hóa quyền': 'quyen', 'Hóa khoa': 'khoa', 'Hóa kỵ': 'ky' };
 
-const isHoaStar = (name) => name.startsWith('Hóa ');
+const isHoaStar = (name: string) => name.startsWith('Hóa ');
 
-export function buildChart({ name, gender, birth, day, month, year, hour }) {
-  const b = birth || { year, month, day, hour };
+export interface ChartInput {
+  name?: string;
+  gender: Gender;
+  birth?: { year: number; month: number; day: number; hour: number };
+  day?: number;
+  month?: number;
+  year?: number;
+  hour?: number;
+}
+
+export function buildChart(input: ChartInput): Chart {
+  const b = input.birth || { year: input.year!, month: input.month!, day: input.day!, hour: input.hour! };
   const laso = generateLaSo({
-    name: name || 'Chưa đặt tên',
-    gender,
+    name: input.name || 'Chưa đặt tên',
+    gender: input.gender,
     birth: {
       isLunar: false,
       year: b.year,
@@ -108,7 +116,7 @@ export function buildChart({ name, gender, birth, day, month, year, hour }) {
 
   const tieuStart = tieuHanStart(dcNam);
 
-  const palaces = laso.Cac_cung.map((c) => {
+  const palaces: Palace[] = laso.Cac_cung.map((c) => {
     const chiCung = c.ChiCung; // equals array index
     const branch = normalizeBranch(BRANCH_ORDER[chiCung]);
     const can = STEM_ORDER[canAtBranch(canIdx, chiCung)];
@@ -126,12 +134,11 @@ export function buildChart({ name, gender, birth, day, month, year, hour }) {
     const tieuHanAge = dist + 1;
 
     // Tứ Hóa markers: attach each transformation to its transformed star
-    const tuHoa = [c.LocNhap, c.QuyenNhap, c.KhoaNhap, c.KyNhap].filter(Boolean);
+    const tuHoa = [c.LocNhap, c.QuyenNhap, c.KhoaNhap, c.KyNhap].filter((x): x is string => !!x);
     const transforms = tuHoa.map((h) => {
       const type = TUHOA_TYPE[h] || 'loc';
       return { type, star: TUHOA_BY_CAN[can]?.[type] || h };
     });
-    const hoaSet = new Set(transforms.map((t) => t.star));
 
     return {
       ...c,
@@ -168,31 +175,33 @@ export function buildChart({ name, gender, birth, day, month, year, hour }) {
     };
   });
 
+  const infoOut: ChartInfo = {
+    name: input.name || '',
+    gender: input.gender,
+    day: b.day,
+    month: b.month,
+    year: b.year,
+    hourInput: b.hour,
+    amDuong: info.AmDuong, // e.g. "Dương Nam"
+    yearGanZhi: info.Nam,
+    canNam: STEM_ORDER[tcNam - 1],
+    chiNam: normalizeBranch(BRANCH_ORDER[dcNam - 1]),
+    lunarDay: info.Ngay,
+    lunarMonth: info.Thang,
+    hour: normalizeBranch(info.Gio),
+    cuc: info.Cuc,
+    cucNH: info.CucNH,
+    chuMenh: info.ChuMenh,
+    chuThan: info.ChuThan,
+    thanCu: info.ThanCu,
+    daiHanDir: dnan ? 'forward' : 'backward',
+    menhBranch: normalizeBranch(BRANCH_ORDER[menhIdx]),
+    menhPalace: palaces[menhIdx].name,
+  };
+
   return {
-    info: {
-      name,
-      gender,
-      day: b.day,
-      month: b.month,
-      year: b.year,
-      hourInput: b.hour,
-      amDuong: info.AmDuong, // e.g. "Dương Nam"
-      yearGanZhi: info.Nam,
-      canNam: STEM_ORDER[tcNam - 1],
-      chiNam: normalizeBranch(BRANCH_ORDER[dcNam - 1]),
-      lunarDay: info.Ngay,
-      lunarMonth: info.Thang,
-      hour: normalizeBranch(info.Gio),
-      cuc: info.Cuc,
-      cucNH: info.CucNH,
-      chuMenh: info.ChuMenh,
-      chuThan: info.ChuThan,
-      thanCu: info.ThanCu,
-      daiHanDir: dnan ? 'forward' : 'backward',
-      menhBranch: normalizeBranch(BRANCH_ORDER[menhIdx]),
-      menhPalace: palaces[menhIdx].Name,
-    },
+    info: infoOut,
     palaces,
-    raw,
+    raw: raw as unknown as Record<string, unknown>,
   };
 }

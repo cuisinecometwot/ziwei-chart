@@ -18,3 +18,7 @@ Thumbs.db
 .env
 .env.*
 !.env.example
+
+# Cloudflare Wrangler
+.wrangler/
+.dev.vars

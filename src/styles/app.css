@@ -263,6 +263,21 @@ body {
   box-shadow: 0 6px 16px rgba(93, 64, 55, 0.4);
 }
 
+/* Chart is always visible beside the form on desktop, so this is only
+   useful (and only shown) on the stacked mobile layout below. */
+.btn-scroll-to-chart {
+  display: none;
+  margin-top: 4px;
+  padding: 10px;
+  border: 1px solid #d9c9a8;
+  border-radius: 8px;
+  background: #fff;
+  color: var(--line);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
 .btn-download {
   margin-top: 12px;
   width: 100%;
@@ -685,9 +700,14 @@ body {
   }
 
   .btn-primary,
-  .btn-download {
+  .btn-download,
+  .btn-scroll-to-chart {
     width: auto;
     flex: 1 1 100%;
+  }
+
+  .btn-scroll-to-chart {
+    display: block;
   }
 }
 
@@ -762,4 +782,262 @@ body {
   padding: 12px;
   border-radius: 8px;
   overflow: auto;
+}
+
+/* ---------- Interpretation panel ---------- */
+.interpretation {
+  margin-top: 18px;
+  border-top: 2px solid #e6dcc4;
+}
+
+.interpretation-toggle {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 12px 4px;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  font-family: Georgia, 'Times New Roman', serif;
+}
+
+.interpretation-toggle-title {
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: var(--line);
+}
+
+.interpretation-toggle-caret {
+  color: var(--gold);
+  font-size: 12px;
+}
+
+.interpretation-body {
+  padding: 4px 8px 16px;
+}
+
+.interpretation-subtitle {
+  font-size: 12px;
+  color: #a1887f;
+  font-style: italic;
+  margin: 0 0 14px;
+}
+
+.interpretation-preview-banner {
+  font-size: 12px;
+  color: #8d6e63;
+  background: #f3ead6;
+  border: 1px dashed #d9c9a8;
+  border-radius: 8px;
+  padding: 8px 10px;
+  margin: 0 0 14px;
+}
+
+.interpretation-section-locked {
+  margin-bottom: 18px;
+}
+
+.interpretation-locked-note {
+  margin: 6px 0 0;
+  font-size: 12px;
+  font-style: italic;
+  color: #a1887f;
+}
+
+.interpretation-empty {
+  color: #a1887f;
+  font-size: 14px;
+  text-align: center;
+  padding: 16px 0;
+}
+
+.interpretation-error {
+  margin-bottom: 12px;
+}
+
+.interpretation-error .btn-primary {
+  margin-top: 4px;
+}
+
+.interpretation-actions {
+  margin: 0 0 14px;
+  text-align: center;
+}
+
+.turnstile-area {
+  margin: 0 0 14px;
+  text-align: center;
+}
+
+.turnstile-area .turnstile {
+  display: flex;
+  justify-content: center;
+}
+
+.interpretation-section {
+  margin-bottom: 18px;
+}
+
+.interpretation-section-title {
+  margin: 0 0 8px;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--ink);
+  border-bottom: 1px solid #e6dcc4;
+  padding-bottom: 4px;
+}
+
+/* Non-summary sections are collapsible <details> so the panel opens short by
+   default; the summary section stays a plain, always-visible <section>. */
+details.interpretation-section > summary.interpretation-section-title {
+  cursor: pointer;
+  list-style: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+details.interpretation-section > summary.interpretation-section-title::-webkit-details-marker {
+  display: none;
+}
+
+details.interpretation-section > summary.interpretation-section-title::after {
+  content: '▸';
+  font-size: 11px;
+  color: var(--gold);
+  flex-shrink: 0;
+}
+
+details.interpretation-section[open] > summary.interpretation-section-title::after {
+  content: '▾';
+}
+
+.interpretation-palace-item > details {
+  width: 100%;
+}
+
+.interpretation-palace-item summary.interpretation-item-head {
+  cursor: pointer;
+  list-style: none;
+}
+
+.interpretation-palace-item summary.interpretation-item-head::-webkit-details-marker {
+  display: none;
+}
+
+.interpretation-palace-item summary.interpretation-item-head::after {
+  content: '▸';
+  margin-left: auto;
+  font-size: 10px;
+  color: var(--gold);
+}
+
+.interpretation-palace-item details[open] > summary.interpretation-item-head::after {
+  content: '▾';
+}
+
+.interpretation-palace-body {
+  margin-top: 4px;
+}
+
+.kind-patterns .interpretation-section-title {
+  color: #6a1b9a;
+}
+
+.kind-relationships .interpretation-section-title {
+  color: #1565c0;
+}
+
+.kind-cohabitations .interpretation-section-title {
+  color: #b71c1c;
+}
+
+.kind-oppositions .interpretation-section-title {
+  color: #c62828;
+}
+
+.kind-cohabitations .interpretation-item-name,
+.kind-oppositions .interpretation-item-name {
+  color: #b71c1c;
+}
+
+.interpretation-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.interpretation-item {
+  padding: 8px 0;
+  border-bottom: 1px dotted #e0d3b6;
+}
+
+.interpretation-item:last-child {
+  border-bottom: 0;
+}
+
+.interpretation-item-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 2px;
+}
+
+.interpretation-item-name {
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.kind-patterns .interpretation-item-name {
+  color: #6a1b9a;
+}
+
+.interpretation-item-palace {
+  font-size: 11px;
+  color: #8d6e63;
+  background: #f3ead6;
+  border-radius: 4px;
+  padding: 1px 6px;
+}
+
+.interpretation-item-text {
+  margin: 2px 0 0;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #5d4037;
+}
+
+.interpretation-star-text {
+  color: var(--main-star);
+  padding-left: 8px;
+  border-left: 3px solid #e0c9a0;
+  margin-top: 4px;
+}
+
+.interpretation-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.interpretation-summary-item {
+  font-size: 14px;
+  line-height: 1.6;
+  color: #5d4037;
+  padding-left: 14px;
+  position: relative;
+}
+
+.interpretation-summary-item::before {
+  content: '◆';
+  position: absolute;
+  left: 0;
+  top: 0;
+  font-size: 9px;
+  color: var(--gold);
 }
