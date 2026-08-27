@@ -56,9 +56,15 @@ interface StarEntries {
   B?: string;
   N?: string;
   branch?: Record<string, string>;
+  palace?: Record<string, string>;
   tuhua?: Partial<Record<HoaType, string>>;
   meaning?: string;
   [key: string]: unknown;
+}
+
+interface PalaceEntry {
+  general: string;
+  reading?: string;
 }
 
 interface PatternRule {
@@ -77,7 +83,7 @@ interface InterpretationDict {
   intro: { title: string; subtitle: string; empty: string };
   summary: Record<string, string>;
   stars: Record<string, StarEntries>;
-  palaces: Record<string, string>;
+  palaces: Record<string, PalaceEntry>;
   patterns: PatternRule[];
   cohabitations: { stars: string[]; text: string }[];
   oppositions: { stars: string[]; text: string }[];
@@ -209,6 +215,11 @@ export function interpret(chart: Chart, lang: Lang = 'vi'): {
           starTexts.push(entries.branch[p.branch]);
         }
 
+        // 2b′. Luận theo cung an vị (sao X tại cung Y).
+        if (entries.palace && entries.palace[p.name]) {
+          starTexts.push(entries.palace[p.name]);
+        }
+
         // 2c. Luận theo nghĩa tổng quát (auxiliary stars, or fallback).
         if (entries.meaning && !statusText_ && !(entries.branch && entries.branch[p.branch])) {
           starTexts.push(entries.meaning);
@@ -220,7 +231,10 @@ export function interpret(chart: Chart, lang: Lang = 'vi'): {
         }
       }
 
-      const palaceText = dict.palaces[p.name] || null;
+      const palaceEntry = dict.palaces[p.name];
+      const palaceText = palaceEntry
+        ? [palaceEntry.general, palaceEntry.reading].filter(Boolean).join(' ')
+        : null;
 
       return {
         name: p.name,
@@ -325,7 +339,8 @@ function buildSummary(chart: Chart, dict: InterpretationDict): InterpretationIte
   const menh = chart.palaces.find((p) => p.isMenh);
 
   if (menh && s.menhPalace) {
-    const palaceText = dict.palaces[menh.name] ? ` ${dict.palaces[menh.name]}` : '';
+    const menhGeneral = dict.palaces[menh.name]?.general;
+    const palaceText = menhGeneral ? ` ${menhGeneral}` : '';
     items.push({
       key: 'menhPalace',
       text: s.menhPalace

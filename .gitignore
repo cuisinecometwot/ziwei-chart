@@ -22,3 +22,6 @@ Thumbs.db
 # Cloudflare Wrangler
 .wrangler/
 .dev.vars
+
+# Dữ liệu luận giải Tử Vi (nội dung gốc, không public qua git)
+server/src/data/luangiai/
