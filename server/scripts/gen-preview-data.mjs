@@ -6,10 +6,12 @@
 // Hai chỗ được GIỮ NGUYÊN nội dung thật (không thay placeholder), vì đây là
 // đúng phần interpreter.ts (toPreview()) hứa hẹn hiển thị miễn phí, không phụ
 // thuộc lá số của người dùng:
-//   - entries.meaning của mỗi sao — "bản chất tổng quát", luôn hiển thị cho
-//     mọi cung kể cả cung bị khoá.
-//   - entries.palace['Mệnh'] của mỗi sao, và dict.palaces['Mệnh'] — vì cung
-//     Mệnh luôn được xem đầy đủ trong bản preview.
+//   - entries.meaning của riêng 14 chính tinh — "bản chất tổng quát", luôn
+//     hiển thị cho mọi cung kể cả cung bị khoá (toPreview() lọc theo
+//     block.isChinh nên phụ tinh không bao giờ lộ ra ngoài cung Mệnh — meaning
+//     của phụ tinh vẫn bị ẩn ở đây để khớp, tránh lộ qua chính file git).
+//   - entries.palace['Mệnh'] của mỗi sao (bất kể chính/phụ tinh), và
+//     dict.palaces['Mệnh'] — vì cung Mệnh luôn được xem đầy đủ trong preview.
 // Các field còn lại (status M/V/Đ/H/B/N, branch, tuhua, palace-text của 11
 // cung khác, patterns/cohabitations/oppositions/relationships) vẫn ẩn vì
 // không thể giới hạn theo cung Mệnh cụ thể (sao/chi/hóa ở Mệnh phụ thuộc lá
@@ -34,11 +36,22 @@ const data = JSON.parse(raw);
 
 const STATUS_KEYS = ['M', 'V', 'Đ', 'H', 'B', 'N'];
 
-for (const entries of Object.values(data.stars || {})) {
+// 14 chính tinh — duy nhất nhóm này được xem "bản chất" (entries.meaning)
+// miễn phí ở mọi cung; phụ tinh chỉ lộ thật khi nằm trong cung Mệnh (qua
+// entries.palace['Mệnh'], không phải qua entries.meaning).
+const CHINH_TINH = [
+  'Tử vi', 'Liêm trinh', 'Thiên đồng', 'Vũ khúc', 'Thái dương', 'Thiên cơ',
+  'Thiên phủ', 'Thái âm', 'Tham lang', 'Cự môn', 'Thiên tướng', 'Thiên lương',
+  'Thất sát', 'Phá quân',
+];
+
+for (const [name, entries] of Object.entries(data.stars || {})) {
   for (const key of STATUS_KEYS) {
     if (typeof entries[key] === 'string') entries[key] = PLACEHOLDER;
   }
-  // entries.meaning: bản chất tổng quát của sao — giữ thật, luôn miễn phí.
+  if (!CHINH_TINH.includes(name) && typeof entries.meaning === 'string') {
+    entries.meaning = PLACEHOLDER;
+  }
   if (entries.branch) {
     for (const k of Object.keys(entries.branch)) entries.branch[k] = PLACEHOLDER;
   }

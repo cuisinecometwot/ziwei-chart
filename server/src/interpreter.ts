@@ -439,13 +439,15 @@ function buildSummary(chart: Chart, dict: InterpretationDict): InterpretationIte
 }
 
 // Derive the free "preview" view from a full interpretation. Curated by content
-// value, not truncated arbitrarily: the short overview stays intact, the two
-// personally-central palaces (Mệnh, Thân) stay fully visible, and every other
-// palace still surfaces each star's general "bản chất" line (texts[0] — see
-// step 2a in interpret(), always the star's meaning, never cung-specific) as
-// a teaser while the deeper cung-specific analysis stays hidden. Cách cục,
-// đồng cung, xung chiếu, tương quan stay fully withheld — only a locked count
-// is exposed so that raw dictionary text never leaves the server beyond this.
+// value, not truncated arbitrarily: the short overview stays intact, cung
+// Mệnh stays fully visible (every star it holds, every text line), and every
+// other palace (Thân included) is cut down to just its main stars' (chính
+// tinh) general "bản chất" line (texts[0] — see step 2a in interpret(),
+// always the star's meaning, never cung-specific) as a teaser — phụ tinh
+// blocks are dropped entirely there, and the cung-specific analysis stays
+// hidden. Cách cục, đồng cung, xung chiếu, tương quan stay fully withheld —
+// only a locked count is exposed so that raw dictionary text never leaves
+// the server beyond this.
 export function toPreview(sections: InterpretationSection[]): InterpretationSection[] {
   return sections.map((section) => {
     if (section.key === 'summary') return section;
@@ -453,12 +455,14 @@ export function toPreview(sections: InterpretationSection[]): InterpretationSect
     if (section.key === 'palaces') {
       let trimmedCount = 0;
       const items = section.items.map((it) => {
-        if (it.isMenh || it.isThan) return it;
+        if (it.isMenh) return it;
         trimmedCount += 1;
         return {
           ...it,
           palaceText: null,
-          starBlocks: it.starBlocks?.map((b) => ({ ...b, texts: b.texts.slice(0, 1) })),
+          starBlocks: it.starBlocks
+            ?.filter((b) => b.isChinh)
+            .map((b) => ({ ...b, texts: b.texts.slice(0, 1) })),
         };
       });
       return trimmedCount > 0

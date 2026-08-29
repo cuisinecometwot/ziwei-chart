@@ -3,8 +3,9 @@ import { toPreview } from '../src/interpreter';
 import type { InterpretationSection } from '../src/types';
 
 // Fixture mirrors the real shape returned by interpret(): one palace item per
-// palace, Mệnh and Thân each with 2 palaces marked, plus one non-central
-// palace ("Huynh đệ") to exercise the trimming path.
+// palace. "Quan lộc" plays Thân (to prove Thân alone no longer earns a full
+// reveal) and mixes a chính tinh with a phụ tinh star block; "Huynh đệ" has
+// only a phụ tinh, to prove that palace surfaces nothing at all.
 function baseSections(): InterpretationSection[] {
   return [
     {
@@ -23,14 +24,18 @@ function baseSections(): InterpretationSection[] {
           palaceText: 'Mô tả cung Mệnh',
           starBlocks: [
             { name: 'Tử vi', isChinh: true, texts: ['Bản chất', 'Miếu', 'Theo chi', 'Theo cung', 'Hóa Quyền'] },
+            { name: 'Hữu bật', isChinh: false, texts: ['Bản chất Hữu bật', 'Theo cung Mệnh'] },
           ],
         },
         {
           name: 'Quan lộc',
           isMenh: false,
           isThan: true,
-          palaceText: 'Mô tả cung Quan lộc (đóng vai Thân)',
-          starBlocks: [{ name: 'Thiên phủ', isChinh: true, texts: ['Bản chất', 'Vượng'] }],
+          palaceText: 'Mô tả chi tiết cung Quan lộc (trả phí, kể cả khi đóng vai Thân)',
+          starBlocks: [
+            { name: 'Thiên phủ', isChinh: true, texts: ['Bản chất Thiên phủ', 'Vượng', 'Chi tiết theo cung'] },
+            { name: 'Tả phù', isChinh: false, texts: ['Bản chất Tả phù', 'Chi tiết theo cung'] },
+          ],
         },
         {
           name: 'Huynh đệ',
@@ -38,7 +43,7 @@ function baseSections(): InterpretationSection[] {
           isThan: false,
           palaceText: 'Mô tả chi tiết cung Huynh đệ (trả phí)',
           starBlocks: [
-            { name: 'Cự môn', isChinh: false, texts: ['Bản chất Cự môn', 'Đắc', 'Chi tiết theo cung'] },
+            { name: 'Hồng loan', isChinh: false, texts: ['Bản chất Hồng loan', 'Chi tiết theo cung'] },
           ],
         },
       ],
@@ -73,38 +78,46 @@ describe('toPreview', () => {
     expect(summary.locked).toBeUndefined();
   });
 
-  it('keeps Mệnh and Thân palace items fully intact', () => {
+  it('keeps cung Mệnh fully intact, including its phụ tinh block', () => {
     const [, palaces] = toPreview(baseSections());
     const menh = palaces.items.find((it) => it.name === 'Mệnh')!;
-    const than = palaces.items.find((it) => it.name === 'Quan lộc')!;
 
     expect(menh.palaceText).toBe('Mô tả cung Mệnh');
-    expect(menh.starBlocks?.[0].texts).toHaveLength(5);
-
-    expect(than.palaceText).toBe('Mô tả cung Quan lộc (đóng vai Thân)');
-    expect(than.starBlocks?.[0].texts).toHaveLength(2);
+    expect(menh.starBlocks).toHaveLength(2);
+    expect(menh.starBlocks?.[0].texts).toHaveLength(5); // chính tinh, full
+    expect(menh.starBlocks?.[1].texts).toHaveLength(2); // phụ tinh, full too
   });
 
-  it('trims every other palace to a one-line teaser (star meaning only)', () => {
+  it('trims Thân (a non-Mệnh palace) down to just its chính tinh teaser, same as any other palace', () => {
+    const [, palaces] = toPreview(baseSections());
+    const than = palaces.items.find((it) => it.name === 'Quan lộc')!;
+
+    expect(than.palaceText).toBeNull();
+    expect(than.starBlocks).toHaveLength(1); // phụ tinh "Tả phù" dropped
+    expect(than.starBlocks?.[0].name).toBe('Thiên phủ');
+    expect(than.starBlocks?.[0].texts).toEqual(['Bản chất Thiên phủ']);
+  });
+
+  it('drops a palace entirely down to an empty star list when it holds only phụ tinh', () => {
     const [, palaces] = toPreview(baseSections());
     const other = palaces.items.find((it) => it.name === 'Huynh đệ')!;
 
     expect(other.palaceText).toBeNull();
-    expect(other.starBlocks?.[0].texts).toEqual(['Bản chất Cự môn']);
+    expect(other.starBlocks).toEqual([]);
   });
 
-  it('marks the palaces section locked with the count of trimmed (non-Mệnh/Thân) palaces', () => {
+  it('marks the palaces section locked with the count of trimmed (non-Mệnh) palaces', () => {
     const [, palaces] = toPreview(baseSections());
     expect(palaces.locked).toBe(true);
-    expect(palaces.lockedCount).toBe(1);
+    expect(palaces.lockedCount).toBe(2);
   });
 
-  it('does not lock the palaces section when every palace is Mệnh or Thân', () => {
+  it('does not lock the palaces section when the only palace is Mệnh', () => {
     const sections = baseSections();
-    sections[1] = { ...sections[1], items: sections[1].items.filter((it) => it.name !== 'Huynh đệ') };
+    sections[1] = { ...sections[1], items: sections[1].items.filter((it) => it.isMenh) };
     const [, palaces] = toPreview(sections);
     expect(palaces.locked).toBeUndefined();
-    expect(palaces.items).toHaveLength(2);
+    expect(palaces.items).toHaveLength(1);
   });
 
   it.each(['patterns', 'cohabitations', 'oppositions', 'relationships'])(

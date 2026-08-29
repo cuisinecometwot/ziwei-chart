@@ -71,7 +71,7 @@ describe('POST /api/interpret (preview)', () => {
     expect(palaces.lockedCount).toBe(1);
     // Mệnh stays fully visible even in preview.
     expect(palaces.items.find((it: any) => it.name === 'Mệnh')!.palaceText).toBe('Full Mệnh text');
-    // Non-Mệnh/Thân palace text is withheld.
+    // Any other palace's text is withheld.
     expect(palaces.items.find((it: any) => it.name === 'Huynh đệ')!.palaceText).toBeNull();
   });
 
