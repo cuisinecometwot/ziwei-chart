@@ -3,6 +3,18 @@
 // đoạn văn luận giải dài bằng một placeholder cố định. Dùng khi cần commit lại
 // bản preview sau khi cấu trúc JSON đổi theo code (xem commit-preview-data.sh).
 //
+// Hai chỗ được GIỮ NGUYÊN nội dung thật (không thay placeholder), vì đây là
+// đúng phần interpreter.ts (toPreview()) hứa hẹn hiển thị miễn phí, không phụ
+// thuộc lá số của người dùng:
+//   - entries.meaning của mỗi sao — "bản chất tổng quát", luôn hiển thị cho
+//     mọi cung kể cả cung bị khoá.
+//   - entries.palace['Mệnh'] của mỗi sao, và dict.palaces['Mệnh'] — vì cung
+//     Mệnh luôn được xem đầy đủ trong bản preview.
+// Các field còn lại (status M/V/Đ/H/B/N, branch, tuhua, palace-text của 11
+// cung khác, patterns/cohabitations/oppositions/relationships) vẫn ẩn vì
+// không thể giới hạn theo cung Mệnh cụ thể (sao/chi/hóa ở Mệnh phụ thuộc lá
+// số từng người) — un-redact chúng sẽ lộ gần hết nội dung trả phí.
+//
 // LƯU Ý: script này ghi đè trực tiếp lên vi.json. Chỉ chạy qua
 // commit-preview-data.sh (script đó tự backup/khôi phục bản đầy đủ), không
 // chạy tay trên bản vi.json đầy đủ nếu chưa backup.
@@ -26,10 +38,14 @@ for (const entries of Object.values(data.stars || {})) {
   for (const key of STATUS_KEYS) {
     if (typeof entries[key] === 'string') entries[key] = PLACEHOLDER;
   }
-  if (typeof entries.meaning === 'string') entries.meaning = PLACEHOLDER;
-  for (const group of ['branch', 'palace']) {
-    if (entries[group]) {
-      for (const k of Object.keys(entries[group])) entries[group][k] = PLACEHOLDER;
+  // entries.meaning: bản chất tổng quát của sao — giữ thật, luôn miễn phí.
+  if (entries.branch) {
+    for (const k of Object.keys(entries.branch)) entries.branch[k] = PLACEHOLDER;
+  }
+  if (entries.palace) {
+    for (const k of Object.keys(entries.palace)) {
+      if (k === 'Mệnh') continue; // cung Mệnh luôn xem đầy đủ, giữ thật
+      entries.palace[k] = PLACEHOLDER;
     }
   }
   if (entries.tuhua) {
@@ -37,7 +53,8 @@ for (const entries of Object.values(data.stars || {})) {
   }
 }
 
-for (const entry of Object.values(data.palaces || {})) {
+for (const [name, entry] of Object.entries(data.palaces || {})) {
+  if (name === 'Mệnh') continue; // cung Mệnh luôn xem đầy đủ, giữ thật
   if (typeof entry.general === 'string') entry.general = PLACEHOLDER;
   if (typeof entry.reading === 'string') entry.reading = PLACEHOLDER;
 }

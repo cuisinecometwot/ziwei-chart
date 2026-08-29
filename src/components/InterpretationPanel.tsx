@@ -281,7 +281,7 @@ export default function InterpretationPanel({ chart }: { chart: Chart }) {
                               <summary className="interpretation-item-head">
                                 <span className="interpretation-item-name">
                                   Cung {it.name}
-                                </span>
+                                </span>{' '}
                                 {it.isMenh && <span className="badge badge-menh">Mệnh</span>}
                                 {it.isThan && <span className="badge badge-than">Thân</span>}
                               </summary>
