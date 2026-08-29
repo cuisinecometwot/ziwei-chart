@@ -15,7 +15,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const DATA_PATH = path.resolve(__dirname, '../src/data/luangiai/vi.json');
 
 const PLACEHOLDER =
-  '[Bản xem trước — nội dung luận giải đầy đủ chỉ có ở môi trường phát triển local, không được đưa lên git.]';
+  '[Bản xem trước — tạm ẩn nội dung luận giải đầy đủ.]';
 
 const raw = fs.readFileSync(DATA_PATH, 'utf8');
 const data = JSON.parse(raw);
