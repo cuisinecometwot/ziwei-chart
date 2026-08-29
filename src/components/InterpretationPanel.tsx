@@ -16,6 +16,14 @@ const KIND_CLASS: Record<string, string> = {
 
 const resolveLang = (lng: string): Lang => (lng === 'en' ? 'en' : lng === 'jp' ? 'jp' : 'vi');
 
+// Độ sáng của sao (miếu/vượng/đắc = tốt, bình = trung tính, hãm = xấu) quyết
+// định tông màu của badge hiển thị cạnh tên sao.
+const statusTone = (status?: string): 'good' | 'neutral' | 'bad' => {
+  if (status === 'H') return 'bad';
+  if (status === 'B' || status === 'N') return 'neutral';
+  return 'good';
+};
+
 // Panel luận giải: KHÔNG tự gọi API. Lá số tự cập nhật ngay trên browser khi đổi
 // ngày giờ sinh, nhưng luận giải chỉ được gửi khi người dùng bấm "Nhận luận giải".
 export default function InterpretationPanel({ chart }: { chart: Chart }) {
@@ -281,10 +289,30 @@ export default function InterpretationPanel({ chart }: { chart: Chart }) {
                                 {it.palaceText && (
                                   <p className="interpretation-item-text">{it.palaceText}</p>
                                 )}
-                                {it.starTexts?.map((txt, i) => (
-                                  <p key={i} className="interpretation-item-text interpretation-star-text">
-                                    {txt}
-                                  </p>
+                                {it.starBlocks?.map((block, i) => (
+                                  <div
+                                    key={i}
+                                    className={`interpretation-star-block${block.isChinh ? ' is-chinh' : ''}`}
+                                  >
+                                    <div className="interpretation-star-header">
+                                      <span className="interpretation-star-name">{block.name}</span>
+                                      {block.statusLabel && (
+                                        <span
+                                          className={`badge badge-status-${statusTone(block.status)}`}
+                                        >
+                                          {block.statusLabel}
+                                        </span>
+                                      )}
+                                      {block.hoaLabel && (
+                                        <span className="badge badge-hoa">{block.hoaLabel}</span>
+                                      )}
+                                    </div>
+                                    {block.texts.map((txt, j) => (
+                                      <p key={j} className="interpretation-item-text">
+                                        {txt}
+                                      </p>
+                                    ))}
+                                  </div>
                                 ))}
                               </div>
                             </details>

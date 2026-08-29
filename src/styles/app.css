@@ -1009,11 +1009,51 @@ details.interpretation-section[open] > summary.interpretation-section-title::aft
   color: #5d4037;
 }
 
-.interpretation-star-text {
-  color: var(--main-star);
-  padding-left: 8px;
+/* Mỗi sao trong 1 cung là 1 khối riêng: dòng tiêu đề (tên + badge) rồi các
+   đoạn văn của sao đó ngay bên dưới — thay cho việc dồn hết vào 1 chuỗi <p>
+   phẳng không phân định (nguồn gốc của cảm giác "tường chữ"). */
+.interpretation-star-block {
+  margin-top: 10px;
+  padding-left: 10px;
   border-left: 3px solid #e0c9a0;
-  margin-top: 4px;
+}
+
+.interpretation-star-block.is-chinh {
+  border-left-color: var(--main-star);
+}
+
+.interpretation-star-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.interpretation-star-name {
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--ink);
+}
+
+.interpretation-star-block.is-chinh .interpretation-star-name {
+  color: var(--main-star);
+  font-size: 15px;
+}
+
+.badge-status-good {
+  background: #2e7d32;
+}
+
+.badge-status-neutral {
+  background: #8d6e63;
+}
+
+.badge-status-bad {
+  background: #b71c1c;
+}
+
+.badge-hoa {
+  background: var(--gold);
 }
 
 .interpretation-summary {

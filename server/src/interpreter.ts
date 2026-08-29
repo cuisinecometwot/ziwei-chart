@@ -1,8 +1,11 @@
 import viJson from './data/luangiai/vi.json';
-import type { Chart, HoaType, InterpretationItem, InterpretationSection, Lang, Palace, Star } from './types';
+import type { Chart, HoaType, InterpretationItem, InterpretationSection, Lang, Palace, PalaceStarBlock, Star } from './types';
 
 // Branch index relationship helpers. chiCung is 0-based (Tý=0 ... Hợi=11).
 const BRANCH_ORDER = ['Tý', 'Sửu', 'Dần', 'Mão', 'Thìn', 'Tị', 'Ngọ', 'Mùi', 'Thân', 'Dậu', 'Tuất', 'Hợi'];
+
+// Cung hiển thị ưu tiên lên đầu danh sách luận giải theo cung, theo đúng thứ tự này.
+const PRIORITY_PALACES = ['Mệnh', 'Tài bạch', 'Quan lộc'];
 
 const TAM_HOP_GROUPS = [
   [0, 4, 8],  // Tý-Thìn-Thân
@@ -72,6 +75,7 @@ interface PatternRule {
   stars: string[];
   status?: string;
   tuhua?: HoaType;
+  tuhuaList?: HoaType[];
   branch?: string;
   min?: number;
   name: string;
@@ -84,6 +88,9 @@ interface InterpretationDict {
   summary: Record<string, string>;
   stars: Record<string, StarEntries>;
   palaces: Record<string, PalaceEntry>;
+  statusLabels?: Record<string, string>;
+  hoaLabels?: Record<string, string>;
+  voChinhDieu?: { general: string; borrowNote?: string; palace: Record<string, string> };
   patterns: PatternRule[];
   cohabitations: { stars: string[]; text: string }[];
   oppositions: { stars: string[]; text: string }[];
@@ -151,6 +158,28 @@ function matchPattern(pattern: PatternRule, chart: Chart): Palace | null {
       }
       return null;
     }
+    case 'giap': {
+      // Hai sao chỉ định đóng ở hai cung liền kề, kẹp Mệnh ở giữa (không phân biệt bên nào).
+      const [starA, starB] = pattern.stars;
+      const menh = allPalaces.find((p) => p.isMenh);
+      if (!menh) return null;
+      const side1 = allPalaces.find((p) => mod(p.chiCung - menh.chiCung, 12) === 1);
+      const side2 = allPalaces.find((p) => mod(p.chiCung - menh.chiCung, 12) === 11);
+      if (!side1 || !side2) return null;
+      const n1 = new Set(palaceStarNames(side1));
+      const n2 = new Set(palaceStarNames(side2));
+      if ((n1.has(starA) && n2.has(starB)) || (n1.has(starB) && n2.has(starA))) return menh;
+      return null;
+    }
+    case 'tuhua_in_palaces': {
+      // Một tập loại hóa (trên sao bất kỳ) cùng có mặt trong tam hợp Mệnh.
+      const menh = allPalaces.find((p) => p.isMenh);
+      if (!menh) return null;
+      const zone = [menh, ...allPalaces.filter((p) => sameGroup(p.chiCung, menh.chiCung))];
+      const zoneHoa = new Set(zone.flatMap(palaceStars).map((s) => s.hóa).filter(Boolean));
+      const want = pattern.tuhuaList || [];
+      return want.length > 0 && want.every((t) => zoneHoa.has(t)) ? menh : null;
+    }
     case 'tuhua_count': {
       // Count of stars carrying the given transformation across the chart.
       const want = pattern.tuhua;
@@ -199,35 +228,71 @@ export function interpret(chart: Chart, lang: Lang = 'vi'): {
   const palaces = chart.palaces
     .filter((p) => p.name)
     .map((p) => {
-      const starTexts: string[] = [];
+      const starBlocks: PalaceStarBlock[] = [];
+      const chinhNames = new Set(p.chinhTinh.map((s) => s.name));
 
       for (const s of palaceStars(p)) {
         const entries = dict.stars[s.name];
         if (!entries) continue;
+        const texts: string[] = [];
 
-        // 2a. Luận theo độ sáng (status).
+        // 2a. Bản chất tổng quát của sao — luôn hiển thị bất kể cung an vị,
+        // để người xem thấy được cốt lõi của sao ngay cả khi nó không thủ Mệnh.
+        if (entries.meaning) texts.push(entries.meaning);
+
+        // 2b. Luận theo độ sáng (status).
         const statusKey = starStatusKey(s);
         const statusText_ = entries[statusKey];
-        if (typeof statusText_ === 'string') starTexts.push(statusText_);
+        if (typeof statusText_ === 'string') texts.push(statusText_);
 
-        // 2b. Luận theo con giáp (branch) của sao.
+        // 2c. Luận theo con giáp (branch) của sao.
         if (entries.branch && entries.branch[p.branch]) {
-          starTexts.push(entries.branch[p.branch]);
+          texts.push(entries.branch[p.branch]);
         }
 
-        // 2b′. Luận theo cung an vị (sao X tại cung Y).
+        // 2c′. Luận theo cung an vị (sao X tại cung Y).
         if (entries.palace && entries.palace[p.name]) {
-          starTexts.push(entries.palace[p.name]);
-        }
-
-        // 2c. Luận theo nghĩa tổng quát (auxiliary stars, or fallback).
-        if (entries.meaning && !statusText_ && !(entries.branch && entries.branch[p.branch])) {
-          starTexts.push(entries.meaning);
+          texts.push(entries.palace[p.name]);
         }
 
         // 2d. Tứ Hóa.
         if (s.hóa && entries.tuhua && entries.tuhua[s.hóa]) {
-          starTexts.push(entries.tuhua[s.hóa]!);
+          texts.push(entries.tuhua[s.hóa]!);
+        }
+
+        if (texts.length === 0) continue;
+        starBlocks.push({
+          name: s.name,
+          isChinh: chinhNames.has(s.name),
+          status: s.status || undefined,
+          statusLabel: s.status ? dict.statusLabels?.[s.status] : undefined,
+          hoa: s.hóa,
+          hoaLabel: s.hóa ? dict.hoaLabels?.[s.hóa] : undefined,
+          texts,
+        });
+      }
+
+      // 2e. Vô Chính Diệu — cung không có chính tinh nào trấn giữ. Không gắn
+      // với một sao cụ thể nào, nên biểu diễn như một khối riêng ở cuối danh
+      // sách thay vì một trường tách biệt, để UI dùng chung 1 kiểu hiển thị.
+      if (p.chinhTinh.length === 0 && dict.voChinhDieu) {
+        const vcd = dict.voChinhDieu;
+        const texts: string[] = [];
+        if (vcd.general) texts.push(vcd.general);
+        if (vcd.palace && vcd.palace[p.name]) texts.push(vcd.palace[p.name]);
+
+        const opposite = chart.palaces.find((p2) => isXung(p2.chiCung, p.chiCung));
+        if (opposite && opposite.chinhTinh.length > 0 && vcd.borrowNote) {
+          const stars = opposite.chinhTinh.map((s) => s.name).join(', ');
+          texts.push(
+            vcd.borrowNote
+              .replace('{palace}', p.name)
+              .replace('{stars}', stars)
+              .replace('{oppositePalace}', opposite.name)
+          );
+        }
+        if (texts.length > 0) {
+          starBlocks.push({ name: 'Vô Chính Diệu', isChinh: false, texts });
         }
       }
 
@@ -241,12 +306,20 @@ export function interpret(chart: Chart, lang: Lang = 'vi'): {
         isMenh: p.isMenh,
         isThan: p.isThan,
         branch: p.branch,
-        starTexts,
+        starBlocks,
         palaceText,
-        hasContent: starTexts.length > 0 || !!palaceText,
+        hasContent: starBlocks.length > 0 || !!palaceText,
       };
     })
-    .filter((p) => p.hasContent);
+    .filter((p) => p.hasContent)
+    .sort((a, b) => {
+      const ia = PRIORITY_PALACES.indexOf(a.name);
+      const ib = PRIORITY_PALACES.indexOf(b.name);
+      if (ia === -1 && ib === -1) return 0;
+      if (ia === -1) return 1;
+      if (ib === -1) return -1;
+      return ia - ib;
+    });
 
   // --- 3. Tương quan giữa các cung ---
   const relationships: InterpretationItem[] = [];

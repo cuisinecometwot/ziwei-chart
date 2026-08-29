@@ -22,9 +22,16 @@ export async function fetchInterpretation(
   const headers: Record<string, string> = { 'Content-Type': 'application/json' };
   if (turnstileToken) headers['X-Turnstile-Token'] = turnstileToken;
 
+  // Khi dev trỏ vào server local (xem ghi chú tại server/.dev.vars.example),
+  // gọi thẳng route /full để xem toàn bộ nội dung luận giải trên UI thay vì
+  // bản preview đã bị khóa bớt — route /full tự nó vẫn chặn ở server nếu
+  // ENVIRONMENT khác "local", nên đổi endpoint ở đây không ảnh hưởng production.
+  const isLocalApi = /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/i.test(API_URL);
+  const endpoint = isLocalApi ? '/api/interpret/full' : '/api/interpret';
+
   let res: Response;
   try {
-    res = await fetch(`${API_URL}/api/interpret`, {
+    res = await fetch(`${API_URL}${endpoint}`, {
       method: 'POST',
       headers,
       body: JSON.stringify(req),

@@ -57,6 +57,19 @@ export interface Chart {
   raw: LaSo;
 }
 
+// One star's contribution to a palace's interpretation, kept as its own group
+// (rather than flattened into one big array) so the UI can render a labeled
+// block per star instead of an undifferentiated wall of paragraphs.
+export interface PalaceStarBlock {
+  name: string;
+  isChinh: boolean;
+  status?: string;
+  statusLabel?: string;
+  hoa?: HoaType;
+  hoaLabel?: string;
+  texts: string[];
+}
+
 export interface InterpretationItem {
   key?: string;
   name?: string;
@@ -68,7 +81,7 @@ export interface InterpretationItem {
   isMenh?: boolean;
   isThan?: boolean;
   palaceText?: string | null;
-  starTexts?: string[];
+  starBlocks?: PalaceStarBlock[];
 }
 
 export interface InterpretationSection {
