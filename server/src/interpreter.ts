@@ -440,20 +440,30 @@ function buildSummary(chart: Chart, dict: InterpretationDict): InterpretationIte
 
 // Derive the free "preview" view from a full interpretation. Curated by content
 // value, not truncated arbitrarily: the short overview stays intact, the two
-// personally-central palaces (Mệnh, Thân) stay visible, everything else that
-// draws on the interpretation dataset (cách cục, đồng cung, xung chiếu, tương
-// quan, and the other 10 palaces) is withheld — only a locked count is exposed
-// so the raw dictionary text never leaves the server for un-entitled requests.
+// personally-central palaces (Mệnh, Thân) stay fully visible, and every other
+// palace still surfaces each star's general "bản chất" line (texts[0] — see
+// step 2a in interpret(), always the star's meaning, never cung-specific) as
+// a teaser while the deeper cung-specific analysis stays hidden. Cách cục,
+// đồng cung, xung chiếu, tương quan stay fully withheld — only a locked count
+// is exposed so that raw dictionary text never leaves the server beyond this.
 export function toPreview(sections: InterpretationSection[]): InterpretationSection[] {
   return sections.map((section) => {
     if (section.key === 'summary') return section;
 
     if (section.key === 'palaces') {
-      const shown = section.items.filter((it) => it.isMenh || it.isThan);
-      const hiddenCount = section.items.length - shown.length;
-      return hiddenCount > 0
-        ? { ...section, items: shown, locked: true, lockedCount: hiddenCount }
-        : { ...section, items: shown };
+      let trimmedCount = 0;
+      const items = section.items.map((it) => {
+        if (it.isMenh || it.isThan) return it;
+        trimmedCount += 1;
+        return {
+          ...it,
+          palaceText: null,
+          starBlocks: it.starBlocks?.map((b) => ({ ...b, texts: b.texts.slice(0, 1) })),
+        };
+      });
+      return trimmedCount > 0
+        ? { ...section, items, locked: true, lockedCount: trimmedCount }
+        : { ...section, items };
     }
 
     // patterns / cohabitations / oppositions / relationships: fully withheld.
