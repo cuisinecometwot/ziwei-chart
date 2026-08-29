@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://cuisinecometwot.github.io/ziwei-chart/sitemap.xml
