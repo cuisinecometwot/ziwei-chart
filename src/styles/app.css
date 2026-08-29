@@ -38,63 +38,6 @@ body {
   padding: 0 16px 32px;
 }
 
-/* ---------- Header ---------- */
-.app-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  padding: 20px 4px 16px;
-  flex-wrap: wrap;
-}
-
-.brand {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.brand-icon {
-  font-size: 42px;
-}
-
-.brand h1 {
-  margin: 0;
-  font-family: Georgia, 'Times New Roman', 'Noto Serif', serif;
-  font-size: 28px;
-  letter-spacing: 1px;
-  color: var(--ink);
-}
-
-.brand p {
-  margin: 2px 0 0;
-  font-size: 13px;
-  color: #8d6e63;
-}
-
-.lang-switch {
-  display: inline-flex;
-  border: 1px solid var(--line);
-  border-radius: 999px;
-  overflow: hidden;
-  background: #fff;
-}
-
-.lang-switch button {
-  border: 0;
-  background: transparent;
-  padding: 8px 16px;
-  font-size: 14px;
-  cursor: pointer;
-  color: var(--ink);
-  font-weight: 600;
-}
-
-.lang-switch button.active {
-  background: var(--line);
-  color: #fff;
-}
-
 /* ---------- Layout ---------- */
 .main {
   display: flex;
@@ -178,7 +121,6 @@ body {
 .field select:focus-visible,
 .btn-primary:focus-visible,
 .btn-download:focus-visible,
-.lang-switch button:focus-visible,
 .radio:has(input:focus-visible) {
   outline: 3px solid #a06a40;
   outline-offset: 2px;
@@ -459,6 +401,12 @@ body {
   flex-direction: column;
   gap: 4px;
   overflow: hidden;
+  /* Lets descendants size themselves off this element's actual rendered
+     width (cqi units, @container below) instead of the viewport — the cell
+     can be narrow either because the screen is small or because the sidebar
+     is squeezing the chart on a mid-width desktop, and only the container's
+     own width reflects that. */
+  container-type: inline-size;
 }
 
 .stars-main {
@@ -516,6 +464,31 @@ body {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  /* Scales with the column's own rendered width (half of .cell-body, since
+     the two columns sit side by side) so the longest name + brightness,
+     e.g. "Thiên thương (H)", stays on one line at a readable size instead
+     of being clipped. clamp() keeps it from going unreadably small or
+     comically large. */
+  font-size: clamp(9px, 5.9cqi, 14px);
+}
+
+@supports not (container-type: inline-size) {
+  .small-col .star-name {
+    font-size: clamp(9px, 1.1vw + 6px, 14px);
+  }
+}
+
+/* A star with a tứ hóa badge (rare on a small star — mostly Văn Xương/Văn
+   Khúc) needs extra room on the same line for the badge text, so it gets a
+   slightly smaller ceiling than a plain name + brightness. */
+.small-col .star-name.has-hoa {
+  font-size: clamp(6px, 4.5cqi, 11px);
+}
+
+@supports not (container-type: inline-size) {
+  .small-col .star-name.has-hoa {
+    font-size: clamp(6px, 0.8vw + 4.5px, 11px);
+  }
 }
 
 .small-good .star-name {
@@ -529,6 +502,31 @@ body {
 .small-bad {
   border-left: 1px dotted #e0d3b6;
   padding-left: 8px;
+}
+
+/* Below this width, even a well-tuned font can't fit a long star name in
+   half a column — stack good/bad stars in one column instead of two so
+   each name gets the full width. */
+@container (max-width: 170px) {
+  .small-stars {
+    grid-template-columns: 1fr;
+  }
+
+  .small-bad {
+    border-left: 0;
+    padding-left: 0;
+    border-top: 1px dotted #e0d3b6;
+    padding-top: 4px;
+    margin-top: 2px;
+  }
+
+  .small-col .star-name {
+    font-size: clamp(7.5px, 13cqi, 13px);
+  }
+
+  .small-col .star-name.has-hoa {
+    font-size: clamp(6px, 9.8cqi, 11px);
+  }
 }
 
 .hoa {
@@ -621,6 +619,9 @@ body {
 /* ---------- Footer ---------- */
 .chart-footer {
   position: relative;
+  /* Above .cell:hover (z-index: 1) so the mascot never gets covered by a
+     palace cell hovering near the bottom of the grid. */
+  z-index: 2;
   text-align: center;
   padding-top: 10px;
   font-size: 12px;
@@ -719,7 +720,6 @@ body {
     font-size: 11px;
   }
 
-  .star-name,
   .stars-main .star-name {
     font-size: 11px;
   }
@@ -727,17 +727,6 @@ body {
   .ganzhi,
   .cell-limits {
     font-size: 9px;
-  }
-
-  /* Columns are too narrow on phones for single-line ellipsis to be readable;
-     let the star name (brightness included, since it's now part of the same
-     text) wrap onto more lines instead of hiding its tail. overflow-wrap and
-     white-space are inherited, so this covers the nested .brightness span too. */
-  .small-col .star-name {
-    white-space: normal;
-    overflow: visible;
-    text-overflow: clip;
-    overflow-wrap: anywhere;
   }
 
   .center-title {

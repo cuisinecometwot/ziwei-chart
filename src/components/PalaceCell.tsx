@@ -16,7 +16,7 @@ function StarTag({ star }: { star: Star }) {
   const hóa = star.hóa;
   const brightness = star.status ? statusText(star.status, lang) : null;
   return (
-    <span className="star-name">
+    <span className={`star-name${hóa ? ' has-hoa' : ''}`}>
       {name}
       {brightness && <span className="brightness"> ({brightness})</span>}
       {hóa && <span className={`hoa ${HOA_CLASS[hóa]}`}>{HOA_SHORT[lang][hóa]}</span>}

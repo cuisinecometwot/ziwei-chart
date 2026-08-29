@@ -18,12 +18,6 @@ const DEFAULT_FORM: FormState = {
   hour: 7,
 };
 
-const LANGS: { code: string; label: string }[] = [
-  { code: 'vn', label: 'Việt' },
-  { code: 'en', label: 'EN' },
-  { code: 'jp', label: '日本語' },
-];
-
 const docLang = (lng: string): string => (lng === 'en' ? 'en' : lng === 'jp' ? 'ja' : 'vi');
 
 // The chart itself only depends on the small core module; the heavy engine is
@@ -60,10 +54,17 @@ function App() {
     document.title = t('appTitle');
   }, [i18n.language, t]);
 
-  const changeLang = (lng: string) => {
-    i18n.changeLanguage(lng);
-    localStorage.setItem('lasotuvi-lang', lng);
-  };
+  // The shared site header (public/shared/site-header.js) owns the language
+  // switch UI outside of React; it reports changes via this event so the
+  // chart itself re-renders in the new language.
+  useEffect(() => {
+    const onLangChange = (e: Event) => {
+      const lang = (e as CustomEvent<{ lang: string }>).detail?.lang;
+      if (lang) i18n.changeLanguage(lang);
+    };
+    document.addEventListener('site:langchange', onLangChange);
+    return () => document.removeEventListener('site:langchange', onLangChange);
+  }, [i18n]);
 
   const handleDownload = useCallback(async () => {
     const node = chartRef.current;
@@ -119,28 +120,6 @@ function App() {
 
   return (
     <div className="app">
-      <header className="app-header">
-        <div className="brand">
-          <span className="brand-icon" aria-hidden="true">☯</span>
-          <div>
-            <h1>{t('appTitle')}</h1>
-            <p>{t('tagline')}</p>
-          </div>
-        </div>
-        <div className="lang-switch" role="group" aria-label={t('language')}>
-          {LANGS.map((l) => (
-            <button
-              key={l.code}
-              className={i18n.language === l.code ? 'active' : ''}
-              aria-pressed={i18n.language === l.code}
-              onClick={() => changeLang(l.code)}
-            >
-              {l.label}
-            </button>
-          ))}
-        </div>
-      </header>
-
       <main className="main">
         <aside className="sidebar">
           <Controls form={form} onChange={setForm} onSubmit={() => chartRef.current?.scrollIntoView({ behavior: 'smooth' })} />
@@ -162,9 +141,7 @@ function App() {
         </section>
       </main>
 
-      <footer className="app-footer">
-        {t('footer')} · <a href="./about/">{t('aboutLink')}</a>
-      </footer>
+      <footer className="app-footer">{t('footer')}</footer>
     </div>
   );
 }

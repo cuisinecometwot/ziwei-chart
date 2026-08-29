@@ -1,0 +1,470 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="Nhập môn Tử Vi Đẩu Số: Âm Dương Ngũ Hành, 12 cung và ý nghĩa hiện đại, logic sắp xếp 12 cung quanh Mệnh, và các nguyên tắc luận đoán một lá số."
+    />
+    <link
+      rel="icon"
+      href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>☯</text></svg>"
+    />
+    <link rel="stylesheet" href="../shared/site-header.css" />
+    <script src="../shared/site-header.js" defer></script>
+    <title>Học Tử Vi Cơ Bản — Lá Số Tử Vi</title>
+    <style>
+      :root {
+        --paper: #fbf6ec;
+        --ink: #3e2723;
+        --line: #6d4c41;
+        --gold: #b08d57;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        background: radial-gradient(ellipse at top, #fdf8ec 0%, #f5ecd8 100%);
+        color: var(--ink);
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue',
+          Arial, 'Noto Sans', sans-serif;
+        -webkit-font-smoothing: antialiased;
+        line-height: 1.65;
+      }
+      .page {
+        max-width: 760px;
+        margin: 0 auto;
+        padding: 20px 20px 48px;
+      }
+      h1 {
+        font-family: Georgia, 'Times New Roman', 'Noto Serif', serif;
+        font-size: 30px;
+        letter-spacing: 0.5px;
+        margin: 0 0 6px;
+      }
+      .tagline {
+        color: var(--line);
+        font-style: italic;
+        margin: 0 0 24px;
+      }
+      h2 {
+        font-family: Georgia, 'Times New Roman', 'Noto Serif', serif;
+        font-size: 20px;
+        color: var(--line);
+        border-bottom: 1px solid #e6dcc4;
+        padding-bottom: 6px;
+        margin: 32px 0 12px;
+      }
+      h3 {
+        font-size: 15.5px;
+        margin: 20px 0 8px;
+      }
+      p {
+        margin: 0 0 14px;
+        font-size: 15px;
+      }
+      ul,
+      ol {
+        margin: 0 0 16px;
+        padding-left: 22px;
+      }
+      li {
+        font-size: 15px;
+        margin-bottom: 8px;
+      }
+      li strong {
+        color: var(--line);
+      }
+      .triad {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 12px;
+        margin: 16px 0 20px;
+      }
+      .triad-card {
+        background: #fffdf8;
+        border: 1px solid #e6dcc4;
+        border-radius: 10px;
+        padding: 14px;
+      }
+      .triad-card h3 {
+        margin: 0 0 6px;
+        font-size: 15px;
+        color: var(--gold);
+      }
+      .triad-card p {
+        font-size: 13.5px;
+        margin: 0;
+        color: var(--line);
+      }
+      .palace-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+        margin: 16px 0 20px;
+      }
+      .palace-card {
+        background: #fffdf8;
+        border: 1px solid #e6dcc4;
+        border-radius: 10px;
+        padding: 12px 14px;
+      }
+      .palace-card h3 {
+        margin: 0 0 4px;
+        font-size: 14.5px;
+        color: var(--gold);
+      }
+      .palace-card p {
+        font-size: 13px;
+        margin: 0;
+        color: var(--line);
+      }
+      .layers {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        margin: 18px 0;
+      }
+      .layer-row {
+        display: grid;
+        grid-template-columns: 90px 1fr;
+        gap: 12px;
+        align-items: stretch;
+        background: #fffdf8;
+        border: 1px solid #e6dcc4;
+        border-radius: 10px;
+        padding: 12px 14px;
+      }
+      .layer-label {
+        font-size: 12.5px;
+        font-weight: 700;
+        color: var(--gold);
+        display: flex;
+        align-items: center;
+      }
+      .layer-body strong {
+        display: block;
+        font-size: 14.5px;
+        color: var(--ink);
+        margin-bottom: 3px;
+      }
+      .layer-body p {
+        font-size: 13.5px;
+        margin: 0;
+        color: var(--line);
+      }
+      .layer-row.center {
+        border-color: var(--gold);
+        background: #fff8ea;
+      }
+      .layer-row.opposite {
+        border-style: dashed;
+      }
+      @media (max-width: 640px) {
+        .triad {
+          grid-template-columns: 1fr;
+        }
+        .palace-grid {
+          grid-template-columns: 1fr;
+        }
+        .layer-row {
+          grid-template-columns: 1fr;
+        }
+        .layer-label {
+          padding-bottom: 2px;
+        }
+      }
+      .rule-list li {
+        margin-bottom: 14px;
+      }
+      .conclusion {
+        background: #fffdf8;
+        border: 1px solid #e6dcc4;
+        border-left: 4px solid var(--gold);
+        border-radius: 10px;
+        padding: 16px;
+        margin-top: 8px;
+      }
+      .conclusion p:last-child {
+        margin-bottom: 0;
+      }
+      footer {
+        margin-top: 40px;
+        padding-top: 16px;
+        border-top: 1px solid #e6dcc4;
+        font-size: 12px;
+        color: #a1887f;
+        text-align: center;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="site-header"></div>
+    <div class="page">
+      <h1>Học Tử Vi Cơ Bản</h1>
+      <p class="tagline">
+        Nhập môn từ số không — không cần biết trước gì cả, chỉ cần đọc hết trang này.
+      </p>
+
+      <p>
+        Trang này giải thích những khái niệm nền tảng nhất của Tử Vi Đẩu Số: Âm Dương Ngũ
+        Hành là gì, lá số có 12 cung nào và chúng nói lên điều gì trong đời sống hiện đại,
+        vì sao 12 cung lại được xếp theo đúng thứ tự đó chứ không phải ngẫu nhiên, và cuối
+        cùng là vài nguyên tắc giúp đọc một lá số đúng cách thay vì chỉ suy diễn theo cảm
+        tính. Nếu muốn tìm hiểu tử vi đáng tin đến đâu và nên nhìn nhận nó như thế nào, xem
+        thêm ở <a href="../about/">trang Giới thiệu</a>.
+      </p>
+
+      <h2>Âm Dương là gì</h2>
+      <p>
+        Âm Dương là cặp khái niệm nền tảng nhất của tư duy phương Đông: mọi sự vật đều có
+        hai mặt đối lập nhưng bổ sung cho nhau, không mặt nào "tốt hơn" mặt nào — chỉ có sự
+        cân bằng hay lệch pha giữa hai bên. Dương thường gắn với những gì chủ động, bộc lộ
+        ra ngoài, chuyển động, sáng rõ; Âm gắn với những gì tĩnh lặng, hướng nội, tích lũy,
+        kín đáo. Một người thiên Dương thường có xu hướng quyết đoán, thích hành động, dễ
+        bộc lộ cảm xúc; một người thiên Âm thường trầm tĩnh, suy nghĩ kỹ trước khi làm, giữ
+        cảm xúc cho riêng mình. Không có kiểu nào ưu việt hơn — một đội ngũ toàn người thiên
+        Dương dễ hành động vội vàng, một đội ngũ toàn người thiên Âm dễ trì trệ vì suy nghĩ
+        quá nhiều mà không dám quyết.
+      </p>
+      <p>
+        Trong lá số, mỗi năm/tháng/ngày/giờ sinh đều được quy về một Can và một Chi, và bản
+        thân mỗi Can, mỗi Chi đều mang thuộc tính Âm hoặc Dương cố định. Đây là lớp thông
+        tin nền, được dùng làm nguyên liệu đầu vào để tính ra vị trí các sao trên lá số —
+        không phải thứ để tự suy diễn "tốt xấu" riêng lẻ.
+      </p>
+
+      <h2>Ngũ Hành là gì</h2>
+      <p>
+        Ngũ Hành gồm năm nguyên tố: <strong>Kim</strong> (kim loại), <strong>Mộc</strong>
+        (cây cối), <strong>Thủy</strong> (nước), <strong>Hỏa</strong> (lửa),
+        <strong>Thổ</strong> (đất). Người xưa dùng năm nguyên tố này như một ngôn ngữ ẩn dụ
+        để mô tả tính chất và mối quan hệ giữa các sự vật, chứ không phải năm chất liệu vật
+        lý theo đúng nghĩa đen. Hai quy luật quan trọng nhất:
+      </p>
+      <ul>
+        <li>
+          <strong>Tương sinh</strong> (hỗ trợ, nuôi dưỡng nhau): Mộc sinh Hỏa (cây khô làm
+          mồi cho lửa) → Hỏa sinh Thổ (tro tàn hóa thành đất) → Thổ sinh Kim (kim loại được
+          hình thành trong lòng đất) → Kim sinh Thủy (kim loại nóng chảy hoặc ngưng đọng
+          thành nước) → Thủy sinh Mộc (nước nuôi cây) → quay lại Mộc sinh Hỏa.
+        </li>
+        <li>
+          <strong>Tương khắc</strong> (kiềm chế, cản trở nhau): Mộc khắc Thổ (rễ cây xuyên
+          phá đất) → Thổ khắc Thủy (đất ngăn nước) → Thủy khắc Hỏa (nước dập lửa) → Hỏa khắc
+          Kim (lửa nung chảy kim loại) → Kim khắc Mộc (kim loại rèn thành dao chặt cây) →
+          quay lại Mộc khắc Thổ.
+        </li>
+      </ul>
+      <p>
+        Trong tử vi, Ngũ Hành được gắn cho từng sao và từng cung để mô tả bản chất của
+        chúng, từ đó suy ra sao này có "trợ lực" hay "khắc chế" cung kia. Đây là công cụ mô
+        tả mối quan hệ nội tại giữa các thành phần trên lá số — khác hẳn với việc dùng Ngũ
+        Hành để chọn hướng nhà hay màu sắc phong thủy, vốn là một ứng dụng khác của cùng hệ
+        khái niệm.
+      </p>
+
+      <h2>12 Cung là gì</h2>
+      <p>
+        Một lá số Tử Vi chia đời sống một con người thành 12 lĩnh vực, gọi là 12 "cung",
+        mỗi cung ứng với một trong 12 Địa Chi (Tý, Sửu, Dần, Mão...). Tên gọi các cung nghe
+        có vẻ cổ, nhưng ý nghĩa của chúng ánh xạ khá tự nhiên sang đời sống hiện đại:
+      </p>
+      <div class="palace-grid">
+        <div class="palace-card">
+          <h3>Mệnh</h3>
+          <p>Con người cốt lõi — tính cách, xu hướng tư duy và hành xử chung.</p>
+        </div>
+        <div class="palace-card">
+          <h3>Huynh Đệ</h3>
+          <p>Anh chị em ruột, những người đồng trang lứa gần gũi nhất từ thuở nhỏ.</p>
+        </div>
+        <div class="palace-card">
+          <h3>Phu Thê</h3>
+          <p>Hôn nhân, bạn đời — mối quan hệ gắn bó dài hạn do chính mình lựa chọn.</p>
+        </div>
+        <div class="palace-card">
+          <h3>Tử Tức</h3>
+          <p>
+            Con cái; hiểu rộng hơn là những gì mình "sinh ra" — dự án, tác phẩm, học trò.
+          </p>
+        </div>
+        <div class="palace-card">
+          <h3>Tài Bạch</h3>
+          <p>Tiền bạc — dòng tiền vào ra, cách kiếm tiền và cách giữ tiền.</p>
+        </div>
+        <div class="palace-card">
+          <h3>Tật Ách</h3>
+          <p>Sức khỏe, thể trạng — những điểm yếu và rủi ro về thân thể.</p>
+        </div>
+        <div class="palace-card">
+          <h3>Thiên Di</h3>
+          <p>Đi xa, thay đổi môi trường sống/làm việc — thế giới bên ngoài "vùng an toàn".</p>
+        </div>
+        <div class="palace-card">
+          <h3>Nô Bộc (Giao Hữu)</h3>
+          <p>Bạn bè, đồng nghiệp, cấp dưới — mạng lưới quan hệ xã giao rộng.</p>
+        </div>
+        <div class="palace-card">
+          <h3>Quan Lộc</h3>
+          <p>Sự nghiệp, công việc — vị thế và con đường thăng tiến ngoài xã hội.</p>
+        </div>
+        <div class="palace-card">
+          <h3>Điền Trạch</h3>
+          <p>Nhà cửa, đất đai — nền tảng vật chất và tài sản mình gây dựng, thừa hưởng.</p>
+        </div>
+        <div class="palace-card">
+          <h3>Phúc Đức</h3>
+          <p>Đời sống tinh thần, phúc phần — thừa hưởng từ tổ tiên và tích lũy cho đời sau.</p>
+        </div>
+        <div class="palace-card">
+          <h3>Phụ Mẫu</h3>
+          <p>Cha mẹ — người sinh thành, nuôi dưỡng và bảo trợ những năm đầu đời.</p>
+        </div>
+      </div>
+
+      <h2>Ý nghĩa cách sắp xếp 12 cung quanh Mệnh</h2>
+      <p>
+        12 cung không đứng rải rác ngẫu nhiên. Nhìn vào cách chúng xếp quanh cung Mệnh theo
+        từng lớp đồng tâm — lớp nào gần Mệnh nhất, lớp nào xa nhất — sẽ thấy rõ một logic
+        rất có chủ đích: càng gần Mệnh là những quan hệ càng "gốc rễ", càng ra xa là những
+        quan hệ càng do mình chủ động tạo dựng và càng thuộc về đời sống xã hội bên ngoài.
+      </p>
+      <div class="layers">
+        <div class="layer-row">
+          <div class="layer-label">Lớp 1<br />(sát Mệnh)</div>
+          <div class="layer-body">
+            <strong>Huynh Đệ &amp; Phụ Mẫu</strong>
+            <p>Quan hệ huyết thống có sẵn từ khi sinh ra — không ai lựa chọn được.</p>
+          </div>
+        </div>
+        <div class="layer-row">
+          <div class="layer-label">Lớp 2</div>
+          <div class="layer-body">
+            <strong>Phu Thê &amp; Phúc Đức</strong>
+            <p>
+              Hôn nhân do chính mình lựa chọn, cộng với "vốn tinh thần" thừa hưởng từ tổ
+              tiên.
+            </p>
+          </div>
+        </div>
+        <div class="layer-row">
+          <div class="layer-label">Lớp 3</div>
+          <div class="layer-body">
+            <strong>Tử Tức &amp; Điền Trạch</strong>
+            <p>Những gì mình tạo ra và để lại — con cái, tài sản, di sản.</p>
+          </div>
+        </div>
+        <div class="layer-row">
+          <div class="layer-label">Lớp 4</div>
+          <div class="layer-body">
+            <strong>Tài Bạch &amp; Quan Lộc</strong>
+            <p>Đóng góp và thành tựu ngoài xã hội — tiền bạc và sự nghiệp.</p>
+          </div>
+        </div>
+        <div class="layer-row">
+          <div class="layer-label">Lớp 5<br />(ngoài cùng)</div>
+          <div class="layer-body">
+            <strong>Tật Ách &amp; Nô Bộc</strong>
+            <p>Thân thể mình đang mang và các mối quan hệ giao tế rộng nhất, lỏng lẻo nhất.</p>
+          </div>
+        </div>
+        <div class="layer-row center opposite">
+          <div class="layer-label">Đối xung<br />với Mệnh</div>
+          <div class="layer-body">
+            <strong>Thiên Di</strong>
+            <p>Đại diện cho thế giới bên ngoài — cái "khác mình", nằm đối diện thẳng Mệnh.</p>
+          </div>
+        </div>
+      </div>
+      <p>
+        Cách xếp này ngầm khẳng định một điều rất Nho giáo: con người không phải một cá thể
+        độc lập tự định nghĩa mình, mà cái tôi được cấu thành từ trong ra ngoài bởi các tầng
+        quan hệ — gần nhất là gia đình gốc, xa dần là hôn nhân, con cái, sự nghiệp, rồi đến
+        xã hội. Đây là quan niệm "con người tương quan" (relational self), đối lập với quan
+        niệm cá nhân chủ nghĩa kiểu phương Tây hiện đại, nơi cái tôi thường được coi là đã
+        hoàn chỉnh trước khi bước vào các mối quan hệ.
+      </p>
+      <p>
+        Cung <strong>Phúc Đức</strong> đáng chú ý riêng: nó không chỉ nói về đời sống tinh
+        thần của một người, mà còn hàm ý "âm đức" tổ tiên để lại — niềm tin rằng phúc phần
+        một người hưởng không chỉ do người đó tạo ra, mà còn được thừa kế từ đời trước; và
+        ngược lại, người đó cũng đang tích đức cho đời sau. Đây là tư duy nhân quả liên thế
+        hệ, khác với quan niệm hiện đại coi thành công hay hạnh phúc là sản phẩm hoàn toàn
+        cá nhân, tự thân vận động.
+      </p>
+      <p>
+        Một điểm nữa đáng chú ý là bộ ba <strong>Mệnh — Tài Bạch — Quan Lộc</strong> tạo
+        thành thế tam hợp, xuất hiện xuyên suốt cả Tử Vi lẫn Tử Bình (Bát Tự) — cho thấy một
+        giả định chung của người xưa: bản thân, tiền tài và sự nghiệp là ba mặt không tách
+        rời của một đời người. "Anh là ai" gắn liền với "anh làm gì để sống", chứ không tách
+        bạch như quan niệm hiện đại vốn hay phân biệt "con người thật" với "công việc chỉ là
+        công việc".
+      </p>
+
+      <h2>Nguyên tắc luận đoán: Tử Vi không đoán "tốt — xấu", nó đoán "bối cảnh"</h2>
+      <p>
+        Đây là điều khiến Tử Vi khác hẳn kiểu bói đơn giản "sao này tốt, sao kia xấu". Vài
+        nguyên tắc xuyên suốt cách đọc một lá số đúng cách:
+      </p>
+      <ol class="rule-list">
+        <li>
+          <strong>Không có gì tốt xấu tuyệt đối — chỉ có "đủ độ" hay "quá độ".</strong> Một
+          cách cục cực tốt, nếu đẩy quá đà, sẽ tự sụp — giống một startup tăng trưởng nóng
+          quá mức sẽ vỡ trận. Ngược lại, một tình huống tưởng như bế tắc hoàn toàn, đúng lúc
+          chạm đáy lại có thể bật ngược thành cơ hội lớn. Đây là lý do vì sao có những "kỳ
+          cách" trong Tử Vi: người tưởng vận xấu tận cùng lại bứt phá mạnh nhất, còn người
+          có xuất phát điểm quá thuận lợi đôi khi lại chủ quan mà gãy giữa đường.
+        </li>
+        <li>
+          <strong>"Nội lực" và "hoàn cảnh" là hai chuyện khác nhau.</strong> Một người có
+          thể bản chất tốt nhưng rơi vào môi trường toàn kẻ xấu bao vây — dễ bị hãm hại.
+          Ngược lại, người bản chất không tốt nhưng gặp toàn quý nhân phù trợ thì lại dễ
+          thành công. Tử Vi phân biệt rất rõ: sao ở ngay cung Mệnh (con người bạn) khác với
+          sao ở các cung chiếu tới (hoàn cảnh xung quanh bạn) — cả hai đều quyết định vận
+          mệnh, không cái nào một mình đủ để kết luận.
+        </li>
+        <li>
+          <strong>Yếu tố "đối trọng" quyết định thành bại.</strong> Một ngôi sao mạnh hay
+          yếu không chỉ do bản thân nó, mà còn do nó đi cùng ai. Một người có tố chất lãnh
+          đạo nhưng thiếu người hỗ trợ đắc lực thì dù giỏi vẫn đơn độc; nếu có "cận thần" tốt
+          bên cạnh thì tiềm năng mới bung ra hoàn toàn. Đây gần như là phiên bản cổ của khái
+          niệm hiện đại: năng lực cá nhân cộng hệ sinh thái hỗ trợ mới ra kết quả thực tế,
+          chứ không phải năng lực đơn thuần.
+        </li>
+        <li>
+          <strong>Sức hút, danh tiếng, đào hoa là "dao hai lưỡi".</strong> Sức hút cá nhân
+          có thể là bệ phóng sự nghiệp, nhưng cũng có thể là cái bẫy nếu thiếu "bộ lọc" đi
+          kèm — kỷ luật, giới hạn, sự tỉnh táo. Người có sức hút mà thiếu kiểm soát dễ vướng
+          rắc rối; người có sức hút và biết tiết chế thì biến nó thành lợi thế thật sự.
+        </li>
+        <li>
+          <strong>Không có công thức chép nguyên xi — chỉ có nguyên lý để áp dụng linh
+          hoạt.</strong> Cùng một tổ hợp sao, sinh năm khác nhau, cung khác nhau, kết quả có
+          thể hoàn toàn trái ngược. Đây là lý do Tử Vi không phải là "tra bảng" — nó đòi hỏi
+          tư duy hệ thống, giống như đọc một biểu đồ tài chính: phải nhìn toàn cảnh, không
+          chỉ một chỉ số đơn lẻ.
+        </li>
+      </ol>
+      <div class="conclusion">
+        <p>
+          Và điều quan trọng nhất, cũng là điều nên nhớ hơn mọi kỹ thuật: cách cục dù họa
+          hay phúc, cốt lõi vẫn nằm ở tâm thiện. Số mệnh là xác suất — có thể thay đổi. Sống
+          tử tế, "lấy đức thắng số", nỗ lực phấn đấu vẫn có thể đổi vận.
+        </p>
+        <p>
+          Tử Vi không phải để khiến bạn cam chịu số phận, mà để bạn hiểu xu hướng, biết điểm
+          mạnh/yếu của mình, rồi chủ động chọn cách sống tốt hơn.
+        </p>
+      </div>
+
+      <footer>Nội dung mang tính tham khảo, phục vụ mục đích văn hóa và giáo dục.</footer>
+    </div>
+  </body>
+</html>
