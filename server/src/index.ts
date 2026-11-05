@@ -1,5 +1,6 @@
 import { buildChart } from './chart';
-import { interpret, toPreview } from './interpreter';
+import { interpret } from './interpreter';
+import { toPreview } from './preview';
 import { RateLimiterDO } from './rate-limiter';
 import type { Gender, InterpretRequest, InterpretResponse, Lang } from './types';
 

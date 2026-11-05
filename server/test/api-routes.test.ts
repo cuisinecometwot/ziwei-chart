@@ -17,17 +17,15 @@ const fixtureSections: InterpretationSection[] = [
   },
 ];
 
-vi.mock('../src/interpreter', async (importOriginal) => {
-  const actual = await importOriginal<typeof import('../src/interpreter')>();
-  return {
-    ...actual, // keep the real toPreview()
-    interpret: vi.fn(() => ({
-      lang: 'vi',
-      intro: { title: 'Lá số', subtitle: 'Sub', empty: 'Empty' },
-      sections: fixtureSections,
-    })),
-  };
-});
+// Not importOriginal: the real interpreter pulls in the private (gitignored)
+// luận giải data, which a fresh checkout doesn't have.
+vi.mock('../src/interpreter', () => ({
+  interpret: vi.fn(() => ({
+    lang: 'vi',
+    intro: { title: 'Lá số', subtitle: 'Sub', empty: 'Empty' },
+    sections: fixtureSections,
+  })),
+}));
 
 const { default: worker } = await import('../src/index');
 type Env = import('../src/index').Env;

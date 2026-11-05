@@ -1,107 +1,19 @@
-import viJson from './data/luangiai/vi.json';
-import type { Chart, HoaType, InterpretationItem, InterpretationSection, Lang, Palace, PalaceStarBlock, Star } from './types';
-
-// Branch index relationship helpers. chiCung is 0-based (Tý=0 ... Hợi=11).
-const BRANCH_ORDER = ['Tý', 'Sửu', 'Dần', 'Mão', 'Thìn', 'Tị', 'Ngọ', 'Mùi', 'Thân', 'Dậu', 'Tuất', 'Hợi'];
+import { cachCuc, dict, starEntry, type InterpretationDict, type PatternRule } from './dictionary';
+import { DONG_CUNG_PAIRS } from './cachCucRules';
+import {
+  findStar,
+  isNhiHop,
+  isXung,
+  mod,
+  palaceStarNames,
+  palaceStars,
+  sameGroup,
+  starStatusKey,
+} from './chartQuery';
+import type { Chart, InterpretationItem, InterpretationSection, Lang, Palace, PalaceStarBlock } from './types';
 
 // Cung hiển thị ưu tiên lên đầu danh sách luận giải theo cung, theo đúng thứ tự này.
 const PRIORITY_PALACES = ['Mệnh', 'Tài bạch', 'Quan lộc'];
-
-const TAM_HOP_GROUPS = [
-  [0, 4, 8],  // Tý-Thìn-Thân
-  [1, 5, 9],  // Sửu-Tị-Dậu
-  [2, 6, 10], // Dần-Ngọ-Tuất
-  [3, 7, 11], // Mão-Mùi-Hợi
-];
-
-const NHI_HOP_PAIRS = [
-  [0, 1], [2, 11], [3, 10], [4, 9], [5, 8], [6, 7],
-];
-
-const mod = (a: number, m: number) => ((a % m) + m) % m;
-
-const sameGroup = (a: number, b: number) =>
-  TAM_HOP_GROUPS.some((g) => g.includes(a) && g.includes(b));
-
-const isNhiHop = (a: number, b: number) =>
-  NHI_HOP_PAIRS.some((p) => p.includes(a) && p.includes(b));
-
-const isXung = (a: number, b: number) => mod(a - b, 12) === 6;
-
-const starStatusKey = (star: Star) => {
-  const code = star && star.status;
-  // Engine codes: 'M' miếu, 'V' vượng, 'Đ' đắc, 'H' hãm, 'B' bình, 'N' none.
-  return code || 'B';
-};
-
-// All named stars of a palace (main + auxiliary).
-const palaceStars = (palace: Palace): Star[] => [
-  ...palace.chinhTinh,
-  ...palace.saoTot,
-  ...palace.saoXau,
-];
-
-const palaceStarNames = (palace: Palace): string[] => palaceStars(palace).map((s) => s.name);
-
-const findStar = (chart: Chart, name: string) => {
-  for (const p of chart.palaces) {
-    const star = palaceStars(p).find((s) => s.name === name);
-    if (star) return { palace: p, star };
-  }
-  return null;
-};
-
-interface StarEntries {
-  M?: string;
-  V?: string;
-  Đ?: string;
-  H?: string;
-  B?: string;
-  N?: string;
-  branch?: Record<string, string>;
-  palace?: Record<string, string>;
-  tuhua?: Partial<Record<HoaType, string>>;
-  meaning?: string;
-  [key: string]: unknown;
-}
-
-interface PalaceEntry {
-  general: string;
-  reading?: string;
-}
-
-interface PatternRule {
-  match: string;
-  stars: string[];
-  status?: string;
-  tuhua?: HoaType;
-  tuhuaList?: HoaType[];
-  branch?: string;
-  min?: number;
-  name: string;
-  text: string;
-}
-
-interface InterpretationDict {
-  sections: Record<string, string>;
-  intro: { title: string; subtitle: string; empty: string };
-  summary: Record<string, string>;
-  stars: Record<string, StarEntries>;
-  palaces: Record<string, PalaceEntry>;
-  statusLabels?: Record<string, string>;
-  hoaLabels?: Record<string, string>;
-  voChinhDieu?: { general: string; borrowNote?: string; palace: Record<string, string> };
-  patterns: PatternRule[];
-  cohabitations: { stars: string[]; text: string }[];
-  oppositions: { stars: string[]; text: string }[];
-  relationships?: {
-    tamHop?: { title: string; rules: { palaces: string[]; text: string }[] };
-    xungChieu?: { title: string; rules: { pair: string[]; text: string }[] };
-    nhiHop?: { title: string; rules: { pair: string[]; text: string }[] };
-  };
-}
-
-const dict = viJson as unknown as InterpretationDict;
 
 // Match a single pattern rule against the whole chart. Returns info or null.
 function matchPattern(pattern: PatternRule, chart: Chart): Palace | null {
@@ -215,6 +127,14 @@ export function interpret(chart: Chart, lang: Lang = 'vi'): {
 
   // --- 1. Cách cục đặc biệt (patterns) ---
   const patterns: InterpretationItem[] = [];
+  const matchedCachCuc = new Set<string>();
+  for (const cc of cachCuc) {
+    const palace = cc.rule(chart);
+    if (palace) {
+      matchedCachCuc.add(cc.name);
+      patterns.push({ name: cc.name, text: cc.text, palace: palace.name });
+    }
+  }
   if (Array.isArray(dict.patterns)) {
     for (const rule of dict.patterns) {
       const palace = matchPattern(rule, chart);
@@ -232,18 +152,21 @@ export function interpret(chart: Chart, lang: Lang = 'vi'): {
       const chinhNames = new Set(p.chinhTinh.map((s) => s.name));
 
       for (const s of palaceStars(p)) {
-        const entries = dict.stars[s.name];
+        const entries = starEntry(s.name);
         if (!entries) continue;
         const texts: string[] = [];
 
         // 2a. Bản chất tổng quát của sao — luôn hiển thị bất kể cung an vị,
         // để người xem thấy được cốt lõi của sao ngay cả khi nó không thủ Mệnh.
-        if (entries.meaning) texts.push(entries.meaning);
+        // Bỏ qua ở Mệnh nếu lời luận tại Mệnh đã mở đầu bằng bản chất.
+        const menhCovers = p.isMenh && entries.menhCoversMeaning && !!entries.palace?.['Mệnh'];
+        if (entries.meaning && !menhCovers) texts.push(entries.meaning);
 
-        // 2b. Luận theo độ sáng (status).
+        // 2b. Luận theo độ sáng (status), rồi vị trí miếu/hãm chung của phụ tinh.
         const statusKey = starStatusKey(s);
         const statusText_ = entries[statusKey];
         if (typeof statusText_ === 'string') texts.push(statusText_);
+        if (entries.dignity) texts.push(entries.dignity);
 
         // 2c. Luận theo con giáp (branch) của sao.
         if (entries.branch && entries.branch[p.branch]) {
@@ -364,8 +287,17 @@ export function interpret(chart: Chart, lang: Lang = 'vi'): {
   const cohabitations: InterpretationItem[] = [];
   const oppositions: InterpretationItem[] = [];
 
+  // Skip a pair already covered by a matched "đồng cung" cách cục.
+  const coveredPairs = new Set(
+    [...matchedCachCuc]
+      .map((name) => DONG_CUNG_PAIRS[name])
+      .filter(Boolean)
+      .map((pair) => [...pair].sort().join('|')),
+  );
+
   if (Array.isArray(dict.cohabitations)) {
     for (const rule of dict.cohabitations) {
+      if (coveredPairs.has([...rule.stars].sort().join('|'))) continue;
       for (const p of chart.palaces) {
         const names = new Set(palaceStarNames(p));
         if (rule.stars.every((s) => names.has(s))) {
@@ -436,44 +368,4 @@ function buildSummary(chart: Chart, dict: InterpretationDict): InterpretationIte
     items.push({ key: 'bureau', text: s.bureau.replace('{cuc}', chart.info.cuc) });
   }
   return items;
-}
-
-// Derive the free "preview" view from a full interpretation. Curated by content
-// value, not truncated arbitrarily: the short overview stays intact, cung
-// Mệnh stays fully visible (every star it holds, every text line), and every
-// other palace (Thân included) is cut down to just its main stars' (chính
-// tinh) general "bản chất" line (texts[0] — see step 2a in interpret(),
-// always the star's meaning, never cung-specific) as a teaser — phụ tinh
-// blocks are dropped entirely there, and the cung-specific analysis stays
-// hidden. Cách cục, đồng cung, xung chiếu, tương quan stay fully withheld —
-// only a locked count is exposed so that raw dictionary text never leaves
-// the server beyond this.
-export function toPreview(sections: InterpretationSection[]): InterpretationSection[] {
-  return sections.map((section) => {
-    if (section.key === 'summary') return section;
-
-    if (section.key === 'palaces') {
-      let trimmedCount = 0;
-      const items = section.items.map((it) => {
-        if (it.isMenh) return it;
-        trimmedCount += 1;
-        return {
-          ...it,
-          palaceText: null,
-          starBlocks: it.starBlocks
-            ?.filter((b) => b.isChinh)
-            .map((b) => ({ ...b, texts: b.texts.slice(0, 1) })),
-        };
-      });
-      return trimmedCount > 0
-        ? { ...section, items, locked: true, lockedCount: trimmedCount }
-        : { ...section, items };
-    }
-
-    // patterns / cohabitations / oppositions / relationships: fully withheld.
-    const hiddenCount = section.items.length;
-    return hiddenCount > 0
-      ? { ...section, items: [], locked: true, lockedCount: hiddenCount }
-      : section;
-  });
 }

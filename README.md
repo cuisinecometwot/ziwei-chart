@@ -8,7 +8,7 @@ và trả về qua API (chống lộ dữ liệu luận giải ra bundle fronten
   Vẫn lập lá số 12 cung hoàn toàn trên browser (chính tinh, phụ tinh, Tứ Hóa, Đại hạn,
   Tiểu hạn) và tải ảnh PNG.
 - **Backend**: Cloudflare Worker nhận dữ liệu ngày giờ sinh, tự lập lá số, luận giải và
-  trả về kết quả. `vi.json` (dữ liệu luận giải) + `interpreter.ts` chỉ nằm ở server.
+  trả về kết quả. Dữ liệu luận giải (`server/src/data/luangiai/`) + `interpreter.ts` chỉ nằm ở server.
 
 Hỗ trợ 3 ngôn ngữ: **Tiếng Việt / English / 日本語**.
 
@@ -21,7 +21,7 @@ Hỗ trợ 3 ngôn ngữ: **Tiếng Việt / English / 日本語**.
 │  Frontend (GitHub Pages) │ ───────────────────────────────► │  Cloudflare Worker API        │
 │  React + TypeScript      │  { gender, year, month, day,     │  server/src/                  │
 │  - tuvi-neo: lập lá số   │    hour, lang }                  │  - chart.ts (lập lá số)       │
-│  - chart.ts (buildChart) │ ◄─────────────────────────────── │  - interpreter.ts + vi.json   │
+│  - chart.ts (buildChart) │ ◄─────────────────────────────── │  - interpreter.ts + luangiai/ │
 │  - gọi API lấy luận giải │   { tier: 'preview', sections }  │    (dữ liệu luận giải, giữ    │
 │  - render lá số + luận   │   (không trả raw dict)           │    kín ở server)              │
 │    giải                  │                                  └──────────────────────────────┘
@@ -30,7 +30,10 @@ Hỗ trợ 3 ngôn ngữ: **Tiếng Việt / English / 日本語**.
 
 Điểm mấu chốt bảo vệ sở hữu trí tuệ: API chỉ trả **kết quả luận giải đã render**
 (`sections`) cho đúng lá số được yêu cầu, **không bao giờ trả raw JSON luận giải**.
-Vì vậy `vi.json` và logic luận giải không xuất hiện trong bundle frontend.
+Vì vậy dữ liệu và logic luận giải không xuất hiện trong bundle frontend.
+Dữ liệu luận giải cũng **không nằm trong git** (thư mục `server/src/data/luangiai/` bị
+`.gitignore`): `deploy.sh` đóng gói bản trên máy vào Worker, nên chỉ deploy được từ máy
+có sẵn dữ liệu.
 Ngoài ra còn có 3 lớp chống cào dữ liệu: rate limit per-IP (mặc định 5 request/giờ),
 Cloudflare Turnstile (xác minh con người) và validate đầu vào chặt.
 
@@ -46,8 +49,8 @@ Worker có 2 route:
   worker chạy với `ENVIRONMENT=local` — dùng để phát triển/kiểm thử UI bản đầy đủ trước
   khi có cổng thanh toán thật. Cả hai route dùng chung 3 lớp chống cào ở trên.
 
-Việc phân loại preview/full nằm ở `server/src/interpreter.ts` (`toPreview`) — chỉ lược
-bớt ở tầng response, dữ liệu gốc `vi.json` không rời khỏi server trong cả hai trường hợp.
+Việc phân loại preview/full nằm ở `server/src/preview.ts` (`toPreview`) — chỉ lược
+bớt ở tầng response, dữ liệu gốc không rời khỏi server trong cả hai trường hợp.
 
 ## Công nghệ
 

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { toPreview } from '../src/interpreter';
+import { toPreview } from '../src/preview';
 import type { InterpretationSection } from '../src/types';
 
 // Fixture mirrors the real shape returned by interpret(): one palace item per

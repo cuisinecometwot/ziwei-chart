@@ -8,7 +8,7 @@ production với hai thành phần:
 | Frontend | React + TypeScript + Vite | GitHub Pages (tĩnh) |
 | Backend API luận giải | Cloudflare Workers (TypeScript) | `https://lasotuvi-api.<subdomain>.workers.dev` |
 
-> Dữ liệu luận giải (`vi.json`) và logic luận giải (`interpreter.ts`) **chỉ nằm ở phía server**.
+> Dữ liệu luận giải (`server/src/data/luangiai/`) và logic luận giải (`interpreter.ts`) **chỉ nằm ở phía server**.
 > Frontend chỉ nhận kết quả luận giải đã render qua API, nên dữ liệu không bị lộ ra bundle.
 
 ---
@@ -154,11 +154,17 @@ Request không hợp lệ → `400`.
 
 ### 2.6. Cập nhật dữ liệu luận giải
 
-Dữ liệu luận giải nằm tại `server/src/data/luangiai/vi.json`. Sau khi sửa, deploy lại:
+Dữ liệu luận giải nằm tại `server/src/data/luangiai/` (bị `.gitignore`, không bao giờ commit):
+
+- `vi.json` — bộ gốc (tiêu đề mục, 12 cung, tương quan cung, sao đồng cung/xung chiếu, các sao còn lại)
+- `tuvi-luan-giai.json` — chính tinh + phụ tinh (ghi đè lên `vi.json`)
+- `tuvi-tap-tinh.json` — bản chất tạp tinh (ghi đè `meaning` trong `vi.json`)
+- `tuvi-cach-cuc.json` — lời luận cách cục; điều kiện nhận diện nằm trong code ở `server/src/cachCucRules.ts`
+
+Việc ghép các file nằm ở `server/src/dictionary.ts`. Sau khi sửa, deploy lại từ máy có dữ liệu:
 
 ```bash
-cd server
-npm run deploy
+./deploy.sh
 ```
 
 ---
@@ -279,7 +285,7 @@ npm run build
 │   ├── src/index.ts               # Entrypoint: POST /api/interpret
 │   ├── src/chart.ts               # Lập lá số (dùng tuvi-neo)
 │   ├── src/interpreter.ts         # Logic luận giải (chỉ ở server)
-│   └── src/data/luangiai/vi.json  # Dữ liệu luận giải (chỉ ở server)
+│   └── src/data/luangiai/         # Dữ liệu luận giải (chỉ ở server, không có trong git)
 ├── src/                           # Frontend React + TypeScript
 │   ├── core/chart.ts              # Lập lá số trên browser
 │   ├── core/api.ts                # Gọi API luận giải
