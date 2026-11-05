@@ -68,7 +68,7 @@ export const TUHOA_BY_CAN: Record<string, Record<HoaType, string>> = {
   Mậu: { loc: 'Tham lang', quyen: 'Thái âm', khoa: 'Hữu bật', ky: 'Thiên cơ' },
   Kỷ: { loc: 'Vũ khúc', quyen: 'Tham lang', khoa: 'Thiên lương', ky: 'Văn khúc' },
   Canh: { loc: 'Thái dương', quyen: 'Vũ khúc', khoa: 'Thái âm', ky: 'Thiên đồng' },
-  Tân: { loc: 'Cự môn', quyen: 'Thái dương', khoa: 'Văn xương', ky: 'Văn khúc' },
+  Tân: { loc: 'Cự môn', quyen: 'Thái dương', khoa: 'Văn khúc', ky: 'Văn xương' },
   Nhâm: { loc: 'Thiên lương', quyen: 'Tử vi', khoa: 'Tả phù', ky: 'Vũ khúc' },
   Quý: { loc: 'Phá quân', quyen: 'Cự môn', khoa: 'Thái âm', ky: 'Tham lang' },
 };
@@ -137,7 +137,7 @@ export function buildChart(input: ChartInput): Chart {
     const tuHoa = [c.LocNhap, c.QuyenNhap, c.KhoaNhap, c.KyNhap].filter((x): x is string => !!x);
     const transforms = tuHoa.map((h) => {
       const type = TUHOA_TYPE[h] || 'loc';
-      return { type, star: TUHOA_BY_CAN[can]?.[type] || h };
+      return { type, star: TUHOA_BY_CAN[STEM_ORDER[canIdx]]?.[type] || h };
     });
 
     return {
