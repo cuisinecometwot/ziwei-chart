@@ -9,7 +9,7 @@ set -euo pipefail
 cd "$(dirname "$0")"
 
 DATA_DIR="server/src/data/luangiai"
-DATA_FILES=(vi.json tuvi-luan-giai.json tuvi-cach-cuc.json tuvi-tap-tinh.json)
+DATA_FILES=(giao-dien.json cung.json chinh-tinh.json phu-tinh.json tap-tinh.json cach-cuc.json tuong-quan.json)
 
 for f in "${DATA_FILES[@]}"; do
   if [ ! -f "$DATA_DIR/$f" ]; then

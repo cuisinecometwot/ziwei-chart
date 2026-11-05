@@ -154,14 +154,28 @@ Request không hợp lệ → `400`.
 
 ### 2.6. Cập nhật dữ liệu luận giải
 
-Dữ liệu luận giải nằm tại `server/src/data/luangiai/` (bị `.gitignore`, không bao giờ commit):
+Dữ liệu luận giải nằm tại `server/src/data/luangiai/` (bị `.gitignore`, không bao giờ commit).
+Mỗi file giữ một loại nội dung, không trùng nhau:
 
-- `vi.json` — bộ gốc (tiêu đề mục, 12 cung, tương quan cung, sao đồng cung/xung chiếu, các sao còn lại)
-- `tuvi-luan-giai.json` — chính tinh + phụ tinh (ghi đè lên `vi.json`)
-- `tuvi-tap-tinh.json` — bản chất tạp tinh (ghi đè `meaning` trong `vi.json`)
-- `tuvi-cach-cuc.json` — lời luận cách cục; điều kiện nhận diện nằm trong code ở `server/src/cachCucRules.ts`
+| File | Nội dung |
+|---|---|
+| `giao-dien.json` | Tiêu đề các mục, lời giới thiệu, nhãn độ sáng/tứ hóa, mẫu câu tổng quan |
+| `cung.json` | 12 cung + Vô Chính Diệu (lời luận riêng cho Mệnh nằm ở đây) |
+| `chinh-tinh.json` | 14 chính tinh |
+| `phu-tinh.json` | Lộc Tồn, Xương Khúc, Tả Hữu, Khôi Việt, lục sát, Mã, Đào Hồng Hỷ |
+| `tap-tinh.json` | Các sao còn lại |
+| `cach-cuc.json` | Lời luận cách cục (tên → nội dung); điều kiện nhận diện nằm trong code ở `server/src/cachCucRules.ts` |
+| `tuong-quan.json` | Tương quan giữa các cung + sao xung chiếu |
 
-Việc ghép các file nằm ở `server/src/dictionary.ts`. Sau khi sửa, deploy lại từ máy có dữ liệu:
+Mỗi sao có các trường (đều tuỳ chọn), hiển thị theo đúng thứ tự: `meaning` (bản chất, hiện ở mọi
+cung; bản xem trước dùng câu này làm phần giới thiệu), `M`/`V`/`Đ`/`H`/`B` (theo độ sáng),
+`dignity` (miếu/hãm chung), `branch` (theo chi), `palace` (theo cung), `tuhua` (theo hóa).
+`an_sao` (cách an sao) chỉ để tham khảo, không hiển thị. Không lặp lại `meaning` trong `palace`.
+
+Một cách cục mới trong `cach-cuc.json` chỉ hiển thị khi đã có điều kiện cùng tên trong
+`cachCucRules.ts`.
+
+File được nạp ở `server/src/dictionary.ts`. Sau khi sửa, deploy lại từ máy có dữ liệu:
 
 ```bash
 ./deploy.sh

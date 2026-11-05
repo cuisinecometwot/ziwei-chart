@@ -15,6 +15,7 @@ import type { Chart, HoaType, Palace } from './types';
 // Each condition is taken from the definition at the start of that entry's
 // text. A rule returns the palace the cách is anchored to, or null.
 //
+// Vô Chính Diệu is not here: it's shown in the Mệnh cung block (cung.json).
 // "Sinh Bất Phùng Thời" has no rule on purpose: its definition (good stars
 // "lạc hãm" plus bad early đại vận) is a judgment call, not a chart fact.
 export type CachCucRule = (chart: Chart) => Palace | null;
@@ -22,14 +23,10 @@ export type CachCucRule = (chart: Chart) => Palace | null;
 const SAT_TINH = ['Kình dương', 'Đà la', 'Hỏa tinh', 'Linh tinh', 'Địa không', 'Địa kiếp'];
 const CAT_TINH = ['Tả phù', 'Hữu bật', 'Văn xương', 'Văn khúc', 'Thiên khôi', 'Thiên việt'];
 
-// Star pairs of the "đồng cung" cách — used to drop the overlapping
-// cohabitation entry when the richer cách cục text already covers it.
-export const DONG_CUNG_PAIRS: Record<string, [string, string]> = {};
-
-const dongCung = (name: string, a: string, b: string): [string, CachCucRule] => {
-  DONG_CUNG_PAIRS[name] = [a, b];
-  return [name, (chart) => chart.palaces.find((p) => hasStar(p, a) && hasStar(p, b)) ?? null];
-};
+const dongCung = (name: string, a: string, b: string): [string, CachCucRule] => [
+  name,
+  (chart) => chart.palaces.find((p) => hasStar(p, a) && hasStar(p, b)) ?? null,
+];
 
 const zoneHas = (zone: Palace[], name: string) => zone.some((p) => hasStar(p, name));
 const zoneHasHoa = (zone: Palace[], type: HoaType) => zone.some((p) => hasHoa(p, type));
@@ -41,28 +38,6 @@ const hoiMenh = (...stars: string[]): CachCucRule => (chart) => {
   if (!menh) return null;
   const zone = tamPhuongTuChinh(chart, menh);
   return stars.every((s) => zoneHas(zone, s)) ? menh : null;
-};
-
-// A pair either gathers around Mệnh (tam phương tứ chính or nhị hợp) or
-// flanks Mệnh from both sides.
-const hoiHoacGiapMenh = (a: string, b: string): CachCucRule => (chart) => {
-  const menh = menhOf(chart);
-  if (!menh) return null;
-  const zone = [
-    ...tamPhuongTuChinh(chart, menh),
-    ...chart.palaces.filter((p) => isNhiHop(p.chiCung, menh.chiCung)),
-  ];
-  if (zoneHas(zone, a) && zoneHas(zone, b)) return menh;
-  const sides = neighbors(chart, menh);
-  if (!sides) return null;
-  const [x, y] = sides;
-  return (hasStar(x, a) && hasStar(y, b)) || (hasStar(x, b) && hasStar(y, a)) ? menh : null;
-};
-
-// Star sits in Mệnh at one of the given branches.
-const thuMenhTai = (star: string, branches: string[]): CachCucRule => (chart) => {
-  const menh = menhOf(chart);
-  return menh && hasStar(menh, star) && branches.includes(menh.branch) ? menh : null;
 };
 
 // The palace holding `center` is flanked by one side matching `sideA` and the
@@ -77,6 +52,35 @@ const giap = (
   if (!sides) return false;
   const [x, y] = sides;
   return (sideA(x) && sideB(y)) || (sideA(y) && sideB(x));
+};
+
+// Two stars on the two cung flanking Mệnh, in either order.
+const giapMenh = (a: string, b: string): CachCucRule => (chart) => {
+  const menh = menhOf(chart);
+  if (!menh) return null;
+  return giap(chart, menh, (x) => hasStar(x, a), (x) => hasStar(x, b)) ? menh : null;
+};
+
+// A pair either gathers around Mệnh (tam phương tứ chính or nhị hợp) or
+// flanks Mệnh from both sides.
+const hoiHoacGiapMenh = (a: string, b: string): CachCucRule => (chart) => {
+  const menh = menhOf(chart);
+  if (!menh) return null;
+  const zone = [
+    ...tamPhuongTuChinh(chart, menh),
+    ...chart.palaces.filter((p) => isNhiHop(p.chiCung, menh.chiCung)),
+  ];
+  return zoneHas(zone, a) && zoneHas(zone, b) ? menh : giapMenh(a, b)(chart);
+};
+
+// A star anywhere in the chart at the given branch.
+const tai = (star: string, branch: string): CachCucRule => (chart) =>
+  chart.palaces.find((p) => p.branch === branch && hasStar(p, star)) ?? null;
+
+// Star sits in Mệnh at one of the given branches.
+const thuMenhTai = (star: string, branches: string[]): CachCucRule => (chart) => {
+  const menh = menhOf(chart);
+  return menh && hasStar(menh, star) && branches.includes(menh.branch) ? menh : null;
 };
 
 const voChinhDieu = (p: Palace) => p.chinhTinh.length === 0;
@@ -130,8 +134,14 @@ export const CACH_CUC_RULES: Record<string, CachCucRule> = Object.fromEntries([
     return zoneHas(zone, 'Thiên mã') && (zoneHas(zone, 'Lộc tồn') || zoneHasHoa(zone, 'loc')) ? menh : null;
   }],
 
-  ['Mã Đầu Đới Kiếm', (chart) =>
-    chart.palaces.find((p) => p.branch === 'Ngọ' && hasStar(p, 'Kình dương')) ?? null],
+  ['Mã Đầu Đới Kiếm', tai('Kình dương', 'Ngọ')],
+  ['Thái Dương Cư Ngọ', tai('Thái dương', 'Ngọ')],
+  ['Song Hao Mão Dậu (Mão)', tai('Tiểu hao', 'Mão')],
+  ['Song Hao Mão Dậu (Dậu)', tai('Tiểu hao', 'Dậu')],
+  ['Nhật Nguyệt tịnh minh', hoiMenh('Thái dương', 'Thái âm')],
+  ['Tử Phủ giáp Mệnh', giapMenh('Tử vi', 'Thiên phủ')],
+  ['Nhật Nguyệt giáp Mệnh', giapMenh('Thái dương', 'Thái âm')],
+  ['Hỏa Linh giáp Mệnh', giapMenh('Hỏa tinh', 'Linh tinh')],
 
   // Triều đẩu (Ngọ, Thân) also requires no sát tinh; ngưỡng đẩu (Dần, Tý) doesn't.
   ['Thất Sát triều đẩu / ngưỡng đẩu', (chart) => {
@@ -147,11 +157,6 @@ export const CACH_CUC_RULES: Record<string, CachCucRule> = Object.fromEntries([
     if (!menh) return null;
     const zone = tamPhuongTuChinh(chart, menh);
     return (['loc', 'quyen', 'khoa'] as HoaType[]).every((t) => zoneHasHoa(zone, t)) ? menh : null;
-  }],
-
-  ['Vô Chính Diệu', (chart) => {
-    const menh = menhOf(chart);
-    return menh && voChinhDieu(menh) ? menh : null;
   }],
 
   ['Kim Dư Phù Giá', (chart) => {

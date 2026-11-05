@@ -1,30 +1,39 @@
-// Builds the luận giải dictionary from the private data files in
-// data/luangiai/ (gitignored, never committed; bundled into the Worker at
-// deploy time). vi.json is the base; the three tuvi-*.json files are the newer,
-// deeper content and override it where they overlap.
-import viJson from './data/luangiai/vi.json';
-import luanGiaiJson from './data/luangiai/tuvi-luan-giai.json';
-import tapTinhJson from './data/luangiai/tuvi-tap-tinh.json';
-import cachCucJson from './data/luangiai/tuvi-cach-cuc.json';
+// Loads the luận giải data from data/luangiai/ (gitignored, never committed;
+// bundled into the Worker at deploy time). Each file owns one kind of content
+// and nothing appears in two files:
+//   giao-dien.json  section titles, intro, labels, summary templates
+//   cung.json       the 12 cung + Vô Chính Diệu
+//   chinh-tinh.json 14 chính tinh
+//   phu-tinh.json   phụ tinh (Lộc Tồn, Xương Khúc, Tả Hữu, Khôi Việt, lục sát, …)
+//   tap-tinh.json   every other star
+//   cach-cuc.json   cách cục texts (match conditions live in cachCucRules.ts)
+//   tuong-quan.json relationships between cung + sao xung chiếu
+import giaoDien from './data/luangiai/giao-dien.json';
+import cungJson from './data/luangiai/cung.json';
+import chinhTinh from './data/luangiai/chinh-tinh.json';
+import phuTinh from './data/luangiai/phu-tinh.json';
+import tapTinh from './data/luangiai/tap-tinh.json';
+import cachCucJson from './data/luangiai/cach-cuc.json';
+import tuongQuanJson from './data/luangiai/tuong-quan.json';
 import { CACH_CUC_RULES } from './cachCucRules';
 import type { HoaType } from './types';
 
+// Per star, every field is optional. Shown in this order: meaning (bản chất,
+// any cung), status text (M/V/Đ/H/B), dignity (where it's strong/weak),
+// branch, palace (per cung), tuhua. `an_sao` (how to place the star) is
+// reference only and never shown.
 export interface StarEntries {
+  meaning?: string;
   M?: string;
   V?: string;
   Đ?: string;
   H?: string;
   B?: string;
-  N?: string;
+  dignity?: string;
   branch?: Record<string, string>;
   palace?: Record<string, string>;
   tuhua?: Partial<Record<HoaType, string>>;
-  meaning?: string;
-  dignity?: string;
-  // The Mệnh text already opens with the star's bản chất, so don't repeat
-  // `meaning` there.
-  menhCoversMeaning?: boolean;
-  [key: string]: unknown;
+  an_sao?: string;
 }
 
 interface PalaceEntry {
@@ -32,35 +41,26 @@ interface PalaceEntry {
   reading?: string;
 }
 
-export interface PatternRule {
-  match: string;
-  stars: string[];
-  status?: string;
-  tuhua?: HoaType;
-  tuhuaList?: HoaType[];
-  branch?: string;
-  min?: number;
-  name: string;
-  text: string;
-}
-
-export interface InterpretationDict {
+interface UiText {
   sections: Record<string, string>;
   intro: { title: string; subtitle: string; empty: string };
+  statusLabels: Record<string, string>;
+  hoaLabels: Record<string, string>;
   summary: Record<string, string>;
-  stars: Record<string, StarEntries>;
+}
+
+interface CungData {
   palaces: Record<string, PalaceEntry>;
-  statusLabels?: Record<string, string>;
-  hoaLabels?: Record<string, string>;
-  voChinhDieu?: { general: string; borrowNote?: string; palace: Record<string, string> };
-  patterns: PatternRule[];
-  cohabitations: { stars: string[]; text: string }[];
-  oppositions: { stars: string[]; text: string }[];
-  relationships?: {
+  voChinhDieu: { general: string; borrowNote?: string; palace: Record<string, string> };
+}
+
+interface TuongQuanData {
+  relationships: {
     tamHop?: { title: string; rules: { palaces: string[]; text: string }[] };
     xungChieu?: { title: string; rules: { pair: string[]; text: string }[] };
     nhiHop?: { title: string; rules: { pair: string[]; text: string }[] };
   };
+  oppositions: { stars: string[]; text: string }[];
 }
 
 // The data files spell star names differently from the engine ("Liêm Trinh"
@@ -73,73 +73,18 @@ export const starKey = (name: string) =>
     .toLowerCase()
     .replace(/hỷ/g, 'hỉ');
 
-// How-to-place notes ("an_sao") are chart-building info, not a reading.
-const HIDDEN_FIELDS = new Set(['an_sao']);
-
-const mergeInto = (target: StarEntries, source: Record<string, unknown>) => {
-  for (const [field, value] of Object.entries(source)) {
-    if (HIDDEN_FIELDS.has(field)) continue;
-    const prev = target[field];
-    target[field] =
-      value && typeof value === 'object' && prev && typeof prev === 'object'
-        ? { ...(prev as object), ...(value as object) }
-        : value;
-  }
-};
-
-// Old vi.json patterns whose cách is now covered by tuvi-cach-cuc.json under
-// a different name (same-name ones are dropped automatically).
-const SUPERSEDED_PATTERNS = new Set([
-  'Tử Vũ Liêm Tướng hội',
-  'Vũ Phủ hội',
-  'Cơ Nguyệt đồng cung',
-  'Cơ Lương đồng cung',
-  'Đồng Lương đồng cung',
-  'Nhật Nguyệt đồng minh',
-  'Khôi Việt hội',
-  'Khôi Việt giáp Mệnh',
-  'Tả Hữu hội',
-  'Tả Hữu giáp Mệnh',
-  'Xương Khúc giáp Mệnh',
-  'Thất Sát triều đẩu (Thân)',
-  'Thất Sát triều đẩu (Ngọ)',
-  'Thất Sát ngưỡng đẩu (Dần)',
-  'Thất Sát ngưỡng đẩu (Tý)',
-]);
-
-function build() {
-  const base = viJson as unknown as InterpretationDict;
-
-  const stars: Record<string, StarEntries> = {};
-  for (const [name, entries] of Object.entries(base.stars)) {
-    stars[starKey(name)] = { ...entries };
-  }
-  const sources = [
-    [luanGiaiJson, true],
-    [tapTinhJson, false],
-  ] as unknown as [Record<string, Record<string, unknown>>, boolean][];
-  for (const [source, menhCoversMeaning] of sources) {
-    for (const [name, entries] of Object.entries(source)) {
-      const key = starKey(name);
-      stars[key] ??= {};
-      mergeInto(stars[key], entries);
-      if (menhCoversMeaning) stars[key].menhCoversMeaning = true;
-    }
-  }
-
-  const cachCucTexts = cachCucJson as unknown as Record<string, string>;
-  const cachCuc = Object.entries(cachCucTexts)
-    .filter(([name]) => CACH_CUC_RULES[name])
-    .map(([name, text]) => ({ name, text, rule: CACH_CUC_RULES[name] }));
-
-  const patterns = base.patterns.filter(
-    (p) => !(p.name in cachCucTexts) && !SUPERSEDED_PATTERNS.has(p.name),
-  );
-
-  const dict: InterpretationDict = { ...base, stars, patterns };
-  return { dict, cachCuc };
+const stars = new Map<string, StarEntries>();
+for (const group of [chinhTinh, phuTinh, tapTinh] as unknown as Record<string, StarEntries>[]) {
+  for (const [name, entries] of Object.entries(group)) stars.set(starKey(name), entries);
 }
 
-export const { dict, cachCuc } = build();
+export const ui = giaoDien as unknown as UiText;
+export const cung = cungJson as unknown as CungData;
+export const tuongQuan = tuongQuanJson as unknown as TuongQuanData;
 
-export const starEntry = (name: string): StarEntries | undefined => dict.stars[starKey(name)];
+export const starEntry = (name: string): StarEntries | undefined => stars.get(starKey(name));
+
+// Cách cục without a rule (no computable condition) are never shown.
+export const cachCuc = Object.entries(cachCucJson as unknown as Record<string, string>)
+  .filter(([name]) => CACH_CUC_RULES[name])
+  .map(([name, text]) => ({ name, text, rule: CACH_CUC_RULES[name] }));
