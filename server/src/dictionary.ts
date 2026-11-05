@@ -19,11 +19,13 @@ import { CACH_CUC_RULES } from './cachCucRules';
 import type { HoaType } from './types';
 
 // Per star, every field is optional. Shown in this order: meaning (bản chất,
-// any cung), status text (M/V/Đ/H/B), dignity (where it's strong/weak),
+// any cung), influence (tạp tinh's effects + advice, any cung), status text
+// (M/V/Đ/H/B), dignity (where it's strong/weak),
 // branch, palace (per cung), tuhua. `an_sao` (how to place the star) is
 // reference only and never shown.
 export interface StarEntries {
   meaning?: string;
+  influence?: string;
   M?: string;
   V?: string;
   Đ?: string;

@@ -168,7 +168,8 @@ Mỗi file giữ một loại nội dung, không trùng nhau:
 | `tuong-quan.json` | Tương quan giữa các cung + sao xung chiếu |
 
 Mỗi sao có các trường (đều tuỳ chọn), hiển thị theo đúng thứ tự: `meaning` (bản chất, hiện ở mọi
-cung; bản xem trước dùng câu này làm phần giới thiệu), `M`/`V`/`Đ`/`H`/`B` (theo độ sáng),
+cung; bản xem trước dùng câu này làm phần giới thiệu), `influence` (ảnh hưởng và lời khuyên chung của
+tạp tinh, hiện ở mọi cung), `M`/`V`/`Đ`/`H`/`B` (theo độ sáng),
 `dignity` (miếu/hãm chung), `branch` (theo chi), `palace` (theo cung), `tuhua` (theo hóa).
 `an_sao` (cách an sao) chỉ để tham khảo, không hiển thị. Không lặp lại `meaning` trong `palace`.
 

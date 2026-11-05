@@ -41,6 +41,8 @@ export function interpret(chart: Chart, lang: Lang = 'vi'): {
         // để người xem thấy được cốt lõi của sao ngay cả khi nó không thủ Mệnh.
         // Phải đứng đầu: bản xem trước lấy texts[0] làm phần giới thiệu.
         if (entries.meaning) texts.push(entries.meaning);
+        // Ảnh hưởng & lời khuyên chung của tạp tinh, cũng hiện ở mọi cung.
+        if (entries.influence) texts.push(entries.influence);
 
         // 2b. Luận theo độ sáng (status), rồi vị trí miếu/hãm chung của phụ tinh.
         const statusText = entries[starStatusKey(s) as StatusKey];
