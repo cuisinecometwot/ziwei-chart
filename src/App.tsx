@@ -51,7 +51,7 @@ function App() {
   // Keep the document language and title in sync with the UI language.
   useEffect(() => {
     document.documentElement.lang = docLang(i18n.language);
-    document.title = t('appTitle');
+    document.title = t('docTitle');
   }, [i18n.language, t]);
 
   // The shared site header (public/shared/site-header.js) owns the language
