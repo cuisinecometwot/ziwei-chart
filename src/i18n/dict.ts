@@ -239,6 +239,7 @@ export const HOA_SHORT: Record<string, { loc: string; quyen: string; khoa: strin
 export const UI: Record<string, Record<string, string>> = {
   vn: {
     appTitle: 'Lá Số Tử Vi',
+    docTitle: 'Lập Lá Số Tử Vi Online Miễn Phí – Xem Lá Số Tử Vi Đẩu Số',
     tagline: 'Tử Vi Đẩu Số - Lập lá số trực tuyến',
     formTitle: 'Thông tin cá nhân',
     nameLabel: 'Họ và tên',
@@ -294,6 +295,7 @@ export const UI: Record<string, Record<string, string>> = {
   },
   en: {
     appTitle: 'Zi Wei Chart',
+    docTitle: 'Free Zi Wei Dou Shu Chart Calculator Online',
     tagline: 'Zi Wei Dou Shu - Online chart maker',
     formTitle: 'Personal information',
     nameLabel: 'Full name',
@@ -349,6 +351,7 @@ export const UI: Record<string, Record<string, string>> = {
   },
   jp: {
     appTitle: '紫微斗数',
+    docTitle: '紫微斗数 命盤作成（無料・オンライン）',
     tagline: '紫微斗数 - オンライン排盤',
     formTitle: '基本情報',
     nameLabel: '氏名',
